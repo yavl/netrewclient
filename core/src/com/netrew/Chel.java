@@ -1,4 +1,4 @@
-package com.netrewclient;
+package com.netrew;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
-import com.netrew.RawChel;
-import com.netrew.RawColor;
+import com.raw.RawChel;
+import com.raw.RawColor;
 
 public class Chel {
 	public String name;

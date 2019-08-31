@@ -1,4 +1,4 @@
-package com.netrewclient.ui;
+package com.netrew.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.netrewclient.Main;
+import com.netrew.Main;
 
 public class GameHud implements Screen {
 	private Stage stage;
@@ -50,8 +50,8 @@ public class GameHud implements Screen {
 				main.menu.connected = false;
 				main.setScreen(main.menu);
 				main.newConnection = true;
-				main.rawchels = null;
 				main.sprites.clear();
+				main.menu.client.stop();
 			}
 		});
 

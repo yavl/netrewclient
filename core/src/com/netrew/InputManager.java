@@ -1,4 +1,4 @@
-package com.netrewclient;
+package com.netrew;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.netrew.Request;
+import com.raw.Request;
 
 public class InputManager implements InputProcessor {
 	private OrthographicCamera cam;

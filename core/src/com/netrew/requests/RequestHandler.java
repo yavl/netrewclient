@@ -1,7 +1,7 @@
-package com.netrewclient.Requests;
+package com.netrew.requests;
 
-import com.netrew.Request;
-import com.netrewclient.Client;
+import com.raw.Request;
+import com.netrew.Client;
 
 import java.io.IOException;
 

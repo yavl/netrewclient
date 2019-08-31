@@ -1,12 +1,12 @@
-package com.netrewclient;
+package com.netrew;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.netrew.RawChel;
-import com.netrew.Request;
-import com.netrewclient.Requests.RequestHandler;
-import com.netrewclient.ui.GameHud;
-import com.netrewclient.ui.MainMenu;
+import com.raw.RawChel;
+import com.raw.Request;
+import com.netrew.requests.RequestHandler;
+import com.netrew.ui.GameHud;
+import com.netrew.ui.MainMenu;
 
 import java.io.*;
 import java.net.Socket;
@@ -27,6 +27,7 @@ public class Client {
 	private Main main;
 	//
 	public ArrayList<RawChel> chels;
+	Resender resend;
 
 	public Client(String name, String ip, int port, Main main) {
 		this.name = name;
@@ -39,6 +40,10 @@ public class Client {
 		requests = new RequestHandler(this);
 	}
 
+	public void stop() {
+		resend.setStop();
+	}
+
 	public void start() {
 		try {
 			socket = new Socket(ip, port);
@@ -46,7 +51,7 @@ public class Client {
 			out = new DataOutputStream(socket.getOutputStream());
 			in = new DataInputStream(socket.getInputStream());
 
-			Resender resend = new Resender();
+			resend = new Resender();
 			resend.start();
 			while (menu.connected) { // Output loop
 				if (main.inputManager.send_message && menu.connected) {
@@ -139,11 +144,11 @@ public class Client {
 							}
 							break;*/
 						case CLIENT_UPDATE:
-							for (RawChel chel : main.rawchels) {
-								chel.position.x = in.readFloat();
-								chel.position.y = in.readFloat();
-							}
-							break;
+//							for (RawChel chel : main.rawchels) {
+//								chel.position.x = in.readFloat();
+//								chel.position.y = in.readFloat();
+//							}
+//							break;
 					}
 				}
 				requests.sendRequest(Request.SERVER_DISCONNECT_CLIENT);
