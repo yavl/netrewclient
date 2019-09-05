@@ -9,8 +9,8 @@ class RequestHandler(private val client: Client) {
 
     fun sendRequest(request: Request) {
         try {
-            client.out.writeInt(request.value)
-            client.out.flush()
+            client.outputStream.writeInt(request.value)
+            client.outputStream.flush()
         } catch (e: IOException) {
             e.printStackTrace()
         }

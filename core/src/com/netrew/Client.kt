@@ -16,19 +16,18 @@ import java.util.ArrayList
 class Client(private val name: String, private val ip: String, private val port: Int, private val main: Main) {
     private var socket: Socket? = null
     var requests: RequestHandler
-    lateinit var out: DataOutputStream
-    lateinit var `in`: DataInputStream
+    lateinit var outputStream: DataOutputStream
+    lateinit var inputStream: DataInputStream
     private val chatLabel: Label
     private val menu: MainMenu
     private val hud: GameHud
     //
-    var chels: ArrayList<RawChel>? = null
     lateinit private var resend: Resender
     var clientName = name
 
     val line: String
         get() {
-            val bufferedReader = BufferedReader(InputStreamReader(`in`))
+            val bufferedReader = BufferedReader(InputStreamReader(inputStream))
             var line = ""
             try {
                 line = bufferedReader.readLine()
@@ -54,8 +53,8 @@ class Client(private val name: String, private val ip: String, private val port:
         try {
             socket = Socket(ip, port)
             socket!!.tcpNoDelay = true
-            out = DataOutputStream(socket!!.getOutputStream())
-            `in` = DataInputStream(socket!!.getInputStream())
+            outputStream = DataOutputStream(socket!!.getOutputStream())
+            inputStream = DataInputStream(socket!!.getInputStream())
 
             resend = Resender()
             resend.start()
@@ -81,8 +80,8 @@ class Client(private val name: String, private val ip: String, private val port:
 
     private fun close() {
         try {
-            out.close()
-            `in`.close()
+            outputStream.close()
+            inputStream.close()
             socket!!.close()
         } catch (e: Exception) {
             System.err.println("Failed to close streams")
@@ -93,8 +92,8 @@ class Client(private val name: String, private val ip: String, private val port:
     fun sendLine(text: String) {
         try {
             val line = text + '\n'
-            out.write(line.toByteArray(StandardCharsets.UTF_8))
-            out.flush()
+            outputStream.write(line.toByteArray(StandardCharsets.UTF_8))
+            outputStream.flush()
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -103,9 +102,9 @@ class Client(private val name: String, private val ip: String, private val port:
 
     fun sendVector2(coords: Vector2) {
         try {
-            out.writeFloat(coords.x)
-            out.writeFloat(coords.y)
-            out.flush()
+            outputStream.writeFloat(coords.x)
+            outputStream.writeFloat(coords.y)
+            outputStream.flush()
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -124,7 +123,7 @@ class Client(private val name: String, private val ip: String, private val port:
                 requests.sendRequest(Request.SERVER_HANDLE_NEW_CONNECTION)
                 sendLine(clientName)
                 while (!stopped && menu.connected) { // Input loop
-                    val requestId = `in`.readInt()
+                    val requestId = inputStream.readInt()
                     println("incoming request: $requestId")
                     val request = Request.fromInt(requestId)
                     when (request) {
