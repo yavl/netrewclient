@@ -38,7 +38,6 @@ class Main : Game() {
     //
     lateinit internal var renderer: OrthogonalTiledMapRenderer
     lateinit internal var assets: AssetManager
-    lateinit internal var predicates: ArrayList<Predicate<Float>>
 
     override fun create() {
         initAssets()
