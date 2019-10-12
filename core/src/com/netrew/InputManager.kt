@@ -7,13 +7,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
+import com.netrew.entities.ChelView
 import com.raw.Request
 
-class InputManager(private val main: Main, private val cam: OrthographicCamera, private val sprites: Array<Chel>) : InputProcessor {
+class InputManager(private val main: Main, private val cam: OrthographicCamera, private val sprites: Array<ChelView>) : InputProcessor {
     private val camSpeed = 500.0f
     private val dragOld = Vector2()
     private val dragNew = Vector2()
-    var selected: Chel? = null
+    var selected: ChelView? = null
     var sendMessage = false
 
     override fun keyDown(keycode: Int): Boolean {
@@ -38,7 +39,7 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera, 
                     cam.unproject(input)
                     if (chel.sprite.boundingRectangle.contains(input.x, input.y)) {
                         selected = chel
-                        main.hud.characterLabel.setText(selected!!.name)
+                        main.hud.characterLabel.setText(selected!!.chelName)
                         break
                     } else {
                         selected = null
@@ -51,7 +52,7 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera, 
                 cam.unproject(input)
                 selected!!.target = Vector2(input.x, input.y)
                 main.menu.client.requests.sendRequest(Request.SERVER_RECEIVE_TARGET)
-                main.menu.client.sendLine(selected!!.name)
+                main.menu.client.sendLine(selected!!.chelName)
                 main.menu.client.sendVector2(selected!!.target!!)
             }
         }
@@ -96,7 +97,7 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera, 
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.Y) && main.screen === main.hud) {
             main.hud.chatTextField.isVisible = true
-            main.stage.keyboardFocus = main.hud.chatTextField
+            main.uiStage.keyboardFocus = main.hud.chatTextField
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && main.screen === main.hud) {
             if (main.hud.chatTextField.text.length > 0) {
@@ -104,7 +105,7 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera, 
             } else {
                 main.hud.chatTextField.isVisible = false
             }
-            main.stage.unfocusAll()
+            main.uiStage.unfocusAll()
         }
 
         if (Gdx.input.justTouched()) {

@@ -21,7 +21,7 @@ class MainMenu(private val main: Main) : Screen {
     var updatechels: Boolean = false
 
     init {
-        this.stage = main.stage
+        this.stage = main.uiStage
         this.skin = main.skin
     }
 

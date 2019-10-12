@@ -21,7 +21,7 @@ class GameHud(private val main: Main) : Screen {
     lateinit var chatTextField: TextField
 
     init {
-        this.stage = main.stage
+        this.stage = main.uiStage
         this.skin = main.skin
     }
 
