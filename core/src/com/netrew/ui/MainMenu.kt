@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.netrew.Client
 import com.netrew.Main
+import ktx.actors.onClick
 
 class MainMenu(private val main: Main) : Screen {
     private val stage: Stage
@@ -37,17 +38,15 @@ class MainMenu(private val main: Main) : Screen {
         connectButton!!.x = ipTextField!!.x + ipTextField!!.width
         connectButton!!.height = 30f
         stage.addActor(connectButton)
-        connectButton!!.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                val r = Runnable {
-                    connected = true
-                    client = Client(nameTextField!!.text, ipTextField!!.text, 13370, main)
-                    client.start()
-                }
-                Thread(r).start()
-                main.screen = main.hud
+        connectButton!!.onClick {
+            val r = Runnable {
+                connected = true
+                client = Client(nameTextField!!.text, ipTextField!!.text, 13370, main)
+                client.start()
             }
-        })
+            Thread(r).start()
+            main.screen = main.hud
+        }
     }
 
     override fun render(delta: Float) {

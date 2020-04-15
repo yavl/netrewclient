@@ -30,6 +30,13 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera, 
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        if (button == Input.Buttons.LEFT) {
+            val x = Gdx.input.x
+            val y = Gdx.input.y
+            val input = Vector3(x.toFloat(), y.toFloat(), 0f)
+            cam.unproject(input)
+            println(String.format("%.0f, %.0f", input.x, input.y))
+        }
         if (main.screen !== main.menu) {
             val x = Gdx.input.x
             val y = Gdx.input.y
@@ -37,23 +44,17 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera, 
                 for (chel in sprites) {
                     val input = Vector3(x.toFloat(), y.toFloat(), 0f)
                     cam.unproject(input)
-                    if (chel.sprite.boundingRectangle.contains(input.x, input.y)) {
-                        selected = chel
-                        main.hud.characterLabel.setText(selected!!.chelName)
-                        break
-                    } else {
                         selected = null
                         main.hud.characterLabel.setText("Character is not selected")
-                    }
                 }
             }
             if (button == Input.Buttons.RIGHT && selected != null) {
                 val input = Vector3(x.toFloat(), y.toFloat(), 0f)
                 cam.unproject(input)
                 selected!!.target = Vector2(input.x, input.y)
-                main.menu.client.requests.sendRequest(Request.SERVER_RECEIVE_TARGET)
-                main.menu.client.sendLine(selected!!.chelName)
-                main.menu.client.sendVector2(selected!!.target!!)
+                //main.menu.client.requests.sendRequest(Request.SERVER_RECEIVE_TARGET)
+                //main.menu.client.sendLine(selected!!.chelName)
+                //main.menu.client.sendVector2(selected!!.target!!)
             }
         }
         return false

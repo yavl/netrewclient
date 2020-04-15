@@ -12,16 +12,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.*
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.netrew.entities.ChelView
 import com.netrew.ui.GameHud
 import com.netrew.ui.MainMenu
+import ktx.actors.onClick
 import java.io.StringWriter
 
 class Main : Game() {
@@ -74,8 +77,34 @@ class Main : Game() {
         inputs.addProcessor(uiStage)
         Gdx.input.inputProcessor = inputs
 
-        sprite = ChelView("Name", img)
-        sprite.sprite.setPosition(0f, 100f)
+        val viewp = ScreenViewport(cam)
+        stage = Stage(viewp, batch)
+        stage.isDebugAll = true
+
+        sprites.add(ChelView("John", img, stage))
+        sprites.get(0).sprite.setPosition(5165f, 5150f)
+        sprites.add(ChelView("Alisa", img, stage))
+        sprites.get(1).sprite.setPosition(5046f, 5371f)
+        sprites.add(ChelView("George", img, stage))
+        sprites.get(2).sprite.setPosition(5173f, 5379f)
+        sprites.add(ChelView("Paul", img, stage))
+        sprites.get(3).sprite.setPosition(5134f, 5269f)
+        sprites.forEach { chel -> chel.sprite.setColor(245f / 255f, 208f / 255f, 141f / 255f, 255f / 255f) }
+
+
+        sprites.add(ChelView("Gosha", img, stage))
+        sprites.get(4).sprite.setPosition(6417f, 6790f)
+        sprites.add(ChelView("Dasha", img, stage))
+        sprites.get(5).sprite.setPosition(4871f, 4794f)
+        sprites.add(ChelView("Grisha", img, stage))
+        sprites.get(6).sprite.setPosition(4842f, 4970f)
+        sprites.add(ChelView("Rita", img, stage))
+        sprites.get(7).sprite.setPosition(4715f, 4886f)
+        sprites.add(ChelView("Senorita", img, stage))
+        sprites.get(8).sprite.setPosition(4824f, 4904f)
+        for (i in 4..8) {
+            sprites.get(i).sprite.setColor(139f / 255f, 99f / 255f, 31 / 255f, 255f / 255f)
+        }
 
         val map = assets.get<TiledMap>("tilemap/untitled.tmx")
         val unitScale = 4f
@@ -91,12 +120,19 @@ class Main : Game() {
         json.writeObjectEnd()
         file.writeString(json.prettyPrint(json.writer.writer.toString()), false)
 
-        val viewp = ScreenViewport(cam)
-        stage = Stage(viewp, batch)
         imageActor = Image(img)
-        imageActor.addAction(Actions.repeat(5, Actions.scaleBy(2f, 2f, 1.0f)))
-        imageActor.setOrigin(imageActor.getX(Align.center), imageActor.getY(Align.center))
         stage.addActor(imageActor)
+        inputs.addProcessor(stage)
+
+        // libKTX:
+        imageActor.onClick { println("hello click") }
+
+        // без libKTX:
+        imageActor.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+                println("hello click")
+            }
+        })
     }
 
     override fun render() {
@@ -112,8 +148,7 @@ class Main : Game() {
 
         batch.begin()
         sprites.forEach { chel -> chel.update(batch, font) }
-        sprite.sprite.draw(batch)
-        sprite.sprite.setPosition(sprite.sprite.x + 20 * dt, 0f)
+        sprites.forEach { chel -> chel.sprite.draw(batch, 1f) }
         batch.end()
         stage.act()
         stage.draw()

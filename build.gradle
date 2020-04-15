@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
 
-    ext.kotlinVersion = '1.3.61'
+    ext.kotlinVersion = '1.3.72'
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -48,6 +48,7 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
         compile "com.badlogicgames.gdx:gdx-ai:1.8.1"
+        compile group: 'io.github.libktx', name: 'ktx-actors', version: '1.9.10-b5'
     }
 }
 
