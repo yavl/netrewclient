@@ -1,59 +1,65 @@
 package com.netrew.ui
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
 import com.netrew.Main
+import ktx.actors.onClick
+import ktx.actors.onKeyDown
 
 class GameHud(private val main: Main) : Screen {
-    private val stage: Stage
-    private val skin: Skin
-    lateinit var characterLabel: Label
-    lateinit var chatLabel: Label
-    lateinit var disconnectButton: TextButton
-    lateinit var chatTextField: TextField
+    private val stage = main.uiStage
+    private val skin = main.skin
+    val chatLabel = Label("Not connected", skin)
+    val disconnectButton = TextButton("Disconnect", skin)
+    val chatTextField = TextField("", skin)
 
-    init {
-        this.stage = main.uiStage
-        this.skin = main.skin
+    fun toggleChatTextField(show: Boolean) {
+        if (chatTextField.isVisible == show && chatTextField.hasParent())
+            return
+        chatTextField.isVisible = show
+        chatTextField.text = ""
+        if (show)
+            stage.addActor(chatTextField)
+        else
+            chatTextField.remove()
+    }
+
+    fun onChatEnter(text: String) {
+        toggleChatTextField(false)
+        chatLabel.setText(chatLabel.text.toString() + "\n${text}")
     }
 
     override fun show() {
-        characterLabel = Label("Character is not selected", skin)
-        characterLabel.x = Gdx.graphics.width - characterLabel.width
-        stage.addActor(characterLabel)
-
-        chatLabel = Label("Not connected", skin)
-        chatLabel.setAlignment(Align.topLeft)
-        chatLabel.x = 0f
-        chatLabel.y = Gdx.graphics.height - chatLabel.height
+        with(chatLabel) {
+            setAlignment(Align.topLeft)
+            x = 0f
+            y = Gdx.graphics.height - chatLabel.height
+        }
         stage.addActor(chatLabel)
 
-        disconnectButton = TextButton("Disconnect", skin)
-        disconnectButton.height = 30f
-        disconnectButton.x = Gdx.graphics.width - disconnectButton.width
-        disconnectButton.y = Gdx.graphics.height - disconnectButton.height
-        stage.addActor(disconnectButton)
-        disconnectButton.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                main.menu.connected = false
+        with(disconnectButton) {
+            height = 30f
+            x = Gdx.graphics.width - disconnectButton.width
+            y = Gdx.graphics.height - disconnectButton.height
+            onClick {
                 main.screen = main.menu
-                main.sprites.clear()
-                main.menu.client.stop()
             }
-        })
+        }
+        stage.addActor(disconnectButton)
 
-        chatTextField = TextField("", skin)
-        chatTextField.width = Gdx.graphics.width.toFloat()
-        chatTextField.isVisible = false
-        stage.addActor(chatTextField)
+        with(chatTextField) {
+            width = Gdx.graphics.width.toFloat()
+            onKeyDown { key ->
+                if (key == Input.Keys.ENTER) {
+                    onChatEnter(text)
+                }
+            }
+        }
     }
 
     override fun render(delta: Float) {
@@ -74,7 +80,6 @@ class GameHud(private val main: Main) : Screen {
     }
 
     override fun hide() {
-        characterLabel.remove()
         chatLabel.remove()
         disconnectButton.remove()
         chatTextField.remove()

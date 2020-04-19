@@ -30,33 +30,6 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera, 
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        if (button == Input.Buttons.LEFT) {
-            val x = Gdx.input.x
-            val y = Gdx.input.y
-            val input = Vector3(x.toFloat(), y.toFloat(), 0f)
-            cam.unproject(input)
-            println(String.format("%.0f, %.0f", input.x, input.y))
-        }
-        if (main.screen !== main.menu) {
-            val x = Gdx.input.x
-            val y = Gdx.input.y
-            if (button == Input.Buttons.LEFT) {
-                for (chel in sprites) {
-                    val input = Vector3(x.toFloat(), y.toFloat(), 0f)
-                    cam.unproject(input)
-                        selected = null
-                        main.hud.characterLabel.setText("Character is not selected")
-                }
-            }
-            if (button == Input.Buttons.RIGHT && selected != null) {
-                val input = Vector3(x.toFloat(), y.toFloat(), 0f)
-                cam.unproject(input)
-                selected!!.target = Vector2(input.x, input.y)
-                //main.menu.client.requests.sendRequest(Request.SERVER_RECEIVE_TARGET)
-                //main.menu.client.sendLine(selected!!.chelName)
-                //main.menu.client.sendVector2(selected!!.target!!)
-            }
-        }
         return false
     }
 
@@ -97,16 +70,8 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera, 
             Gdx.app.exit()
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.Y) && main.screen === main.hud) {
-            main.hud.chatTextField.isVisible = true
+            main.hud.toggleChatTextField(true)
             main.uiStage.keyboardFocus = main.hud.chatTextField
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && main.screen === main.hud) {
-            if (main.hud.chatTextField.text.length > 0) {
-                sendMessage = true
-            } else {
-                main.hud.chatTextField.isVisible = false
-            }
-            main.uiStage.unfocusAll()
         }
 
         if (Gdx.input.justTouched()) {
