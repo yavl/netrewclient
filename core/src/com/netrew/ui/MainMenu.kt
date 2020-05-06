@@ -5,10 +5,13 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
+import com.esotericsoftware.kryonet.Client
+import com.netrew.GameMediator
 import com.netrew.Main
+import com.netrew.net.GameClient
 import ktx.actors.onClick
 
-class MainMenu(private val main: Main) : Screen {
+class MainMenu(private val main: Main, val mediator: GameMediator) : Screen {
     private val stage = main.uiStage
     private val skin = main.skin
     private val nameTextField = TextField("default_name", skin)
@@ -16,7 +19,6 @@ class MainMenu(private val main: Main) : Screen {
     private val connectButton = TextButton("Connect", skin)
 
     override fun show() {
-        ipTextField
         stage.addActor(ipTextField)
 
         nameTextField.y = ipTextField.y + ipTextField.height
@@ -26,6 +28,7 @@ class MainMenu(private val main: Main) : Screen {
         connectButton.height = 30f
         connectButton.onClick {
             main.screen = main.hud
+            mediator.connect(ipTextField.text, 13370, 13371)
         }
         stage.addActor(connectButton)
     }

@@ -44,6 +44,7 @@ class Main : Game() {
     lateinit internal var assets: AssetManager
     lateinit var imageActor: Image
     lateinit var stage: Stage
+    val mediator = GameMediator()
 
     override fun create() {
         initAssets()
@@ -65,8 +66,8 @@ class Main : Game() {
         pixmap.fill()
         skin.add("white", Texture(pixmap))
 
-        menu = MainMenu(this)
-        hud = GameHud(this)
+        menu = MainMenu(this, mediator)
+        hud = GameHud(this, mediator)
         setScreen(menu)
 
         sprites = Array()

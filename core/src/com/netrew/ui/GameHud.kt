@@ -7,11 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.Align
+import com.netrew.GameMediator
 import com.netrew.Main
+import com.netrew.net.requests.SomeRequest
 import ktx.actors.onClick
 import ktx.actors.onKeyDown
 
-class GameHud(private val main: Main) : Screen {
+class GameHud(private val main: Main, val mediator: GameMediator) : Screen {
     private val stage = main.uiStage
     private val skin = main.skin
     val chatLabel = Label("Not connected", skin)
@@ -32,6 +34,9 @@ class GameHud(private val main: Main) : Screen {
     fun onChatEnter(text: String) {
         toggleChatTextField(false)
         chatLabel.setText(chatLabel.text.toString() + "\n${text}")
+        val request = SomeRequest()
+        request.text = text
+        mediator.client().client.sendTCP(request)
     }
 
     override fun show() {
@@ -48,6 +53,7 @@ class GameHud(private val main: Main) : Screen {
             y = Gdx.graphics.height - disconnectButton.height
             onClick {
                 main.screen = main.menu
+                mediator.disconnect()
             }
         }
         stage.addActor(disconnectButton)
