@@ -1,5 +1,6 @@
 package com.netrew
 
+import com.badlogic.gdx.assets.AssetManager
 import com.netrew.net.GameClient
 
 class GameMediator {
@@ -11,7 +12,11 @@ class GameMediator {
         Globals.client.disconnect()
     }
 
-    fun client() : GameClient {
+    fun client(): GameClient {
         return Globals.client
+    }
+
+    fun assets(): AssetManager {
+        return Globals.assets
     }
 }

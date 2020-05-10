@@ -1,5 +1,6 @@
 package com.netrew
 
+import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
@@ -20,7 +21,9 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
 import com.badlogic.gdx.utils.viewport.ScreenViewport
-import com.netrew.entities.ChelView
+import com.netrew.game.Chel
+import com.netrew.game.World
+import com.netrew.game.systems.RenderingSystem
 import com.netrew.ui.GameHud
 import com.netrew.ui.MainMenu
 import ktx.actors.onClick
@@ -35,16 +38,19 @@ class Main : Game() {
     lateinit var hud: GameHud
     private val inputs = InputMultiplexer()
     lateinit var uiStage: Stage
-    lateinit var sprites: Array<ChelView>
+    lateinit var sprites: Array<Chel>
     lateinit private var font: BitmapFont
     lateinit var skin: Skin
-    lateinit internal var sprite: ChelView
+    lateinit internal var sprite: Chel
     //
     lateinit internal var renderer: OrthogonalTiledMapRenderer
     lateinit internal var assets: AssetManager
     lateinit var imageActor: Image
     lateinit var stage: Stage
+
+    val engine = PooledEngine()
     val mediator = GameMediator()
+    val world = World(mediator, engine)
 
     override fun create() {
         initAssets()
@@ -81,31 +87,6 @@ class Main : Game() {
         stage = Stage(viewp, batch)
         stage.isDebugAll = true
 
-        sprites.add(ChelView("John", img, stage))
-        sprites.get(0).sprite.setPosition(5165f, 5150f)
-        sprites.add(ChelView("Alisa", img, stage))
-        sprites.get(1).sprite.setPosition(5046f, 5371f)
-        sprites.add(ChelView("George", img, stage))
-        sprites.get(2).sprite.setPosition(5173f, 5379f)
-        sprites.add(ChelView("Paul", img, stage))
-        sprites.get(3).sprite.setPosition(5134f, 5269f)
-        sprites.forEach { chel -> chel.sprite.setColor(245f / 255f, 208f / 255f, 141f / 255f, 255f / 255f) }
-
-
-        sprites.add(ChelView("Gosha", img, stage))
-        sprites.get(4).sprite.setPosition(6417f, 6790f)
-        sprites.add(ChelView("Dasha", img, stage))
-        sprites.get(5).sprite.setPosition(4871f, 4794f)
-        sprites.add(ChelView("Grisha", img, stage))
-        sprites.get(6).sprite.setPosition(4842f, 4970f)
-        sprites.add(ChelView("Rita", img, stage))
-        sprites.get(7).sprite.setPosition(4715f, 4886f)
-        sprites.add(ChelView("Senorita", img, stage))
-        sprites.get(8).sprite.setPosition(4824f, 4904f)
-        for (i in 4..8) {
-            sprites.get(i).sprite.setColor(139f / 255f, 99f / 255f, 31 / 255f, 255f / 255f)
-        }
-
         val map = assets.get<TiledMap>("tilemap/untitled.tmx")
         val unitScale = 4f
         renderer = OrthogonalTiledMapRenderer(map, unitScale)
@@ -120,19 +101,11 @@ class Main : Game() {
         json.writeObjectEnd()
         file.writeString(json.prettyPrint(json.writer.writer.toString()), false)
 
-        imageActor = Image(img)
-        stage.addActor(imageActor)
         inputs.addProcessor(stage)
 
-        // libKTX:
-        imageActor.onClick { println("hello click") }
+        world.create()
+        engine.addSystem(RenderingSystem(stage, 0))
 
-        // без libKTX:
-        imageActor.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                println("hello click")
-            }
-        })
     }
 
     override fun render() {
@@ -146,12 +119,8 @@ class Main : Game() {
         renderer.setView(cam)
         renderer.render()
 
-        batch.begin()
-        sprites.forEach { chel -> chel.update(batch, font) }
-        sprites.forEach { chel -> chel.sprite.draw(batch, 1f) }
-        batch.end()
-        stage.act()
-        stage.draw()
+        engine.update(dt)
+
         inputManager.handleInput(dt)
         super.render()
     }
@@ -172,7 +141,7 @@ class Main : Game() {
     }
 
     private fun initAssets() {
-        assets = AssetManager()
+        assets = mediator.assets()
         assets.load("circle.png", Texture::class.java)
         assets.load("fonts/ubuntu-16.fnt", BitmapFont::class.java)
         assets.load("DefaultSkin/uiskin.json", Skin::class.java)

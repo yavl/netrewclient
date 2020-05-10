@@ -5,16 +5,14 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
-import com.netrew.entities.ChelView
-import com.raw.Request
+import com.netrew.game.Chel
 
-class InputManager(private val main: Main, private val cam: OrthographicCamera, private val sprites: Array<ChelView>) : InputProcessor {
+class InputManager(private val main: Main, private val cam: OrthographicCamera, private val sprites: Array<Chel>) : InputProcessor {
     private val camSpeed = 500.0f
     private val dragOld = Vector2()
     private val dragNew = Vector2()
-    var selected: ChelView? = null
+    var selected: Chel? = null
     var sendMessage = false
 
     override fun keyDown(keycode: Int): Boolean {
