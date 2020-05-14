@@ -12,21 +12,18 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
-import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
 import com.badlogic.gdx.utils.viewport.ScreenViewport
-import com.netrew.game.Chel
 import com.netrew.game.World
-import com.netrew.game.systems.RenderingSystem
+import com.netrew.game.systems.SpriteRenderingSystem
+import com.netrew.game.systems.StageRenderingSystem
+import com.netrew.game.systems.TilemapRenderingSystem
 import com.netrew.ui.GameHud
 import com.netrew.ui.MainMenu
-import ktx.actors.onClick
 import java.io.StringWriter
 
 class Main : Game() {
@@ -38,15 +35,12 @@ class Main : Game() {
     lateinit var hud: GameHud
     private val inputs = InputMultiplexer()
     lateinit var uiStage: Stage
-    lateinit var sprites: Array<Chel>
     lateinit private var font: BitmapFont
     lateinit var skin: Skin
-    lateinit internal var sprite: Chel
     //
     lateinit internal var renderer: OrthogonalTiledMapRenderer
     lateinit internal var assets: AssetManager
     lateinit var imageActor: Image
-    lateinit var stage: Stage
 
     val engine = PooledEngine()
     val mediator = GameMediator()
@@ -59,9 +53,6 @@ class Main : Game() {
         cam.viewportWidth = Gdx.graphics.width.toFloat()
         cam.viewportHeight = Gdx.graphics.height.toFloat()
         cam.position.set(cam.viewportWidth / 2, cam.viewportHeight / 2, 0f)
-
-        img = assets.get<Texture>("circle.png")
-        img.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
         font = assets.get<BitmapFont>("fonts/ubuntu-16.fnt")
         font.region.texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
@@ -76,15 +67,14 @@ class Main : Game() {
         hud = GameHud(this, mediator)
         setScreen(menu)
 
-        sprites = Array()
-
-        inputManager = InputManager(this, cam, sprites)
+        inputManager = InputManager(this, cam)
         inputs.addProcessor(inputManager)
         inputs.addProcessor(uiStage)
         Gdx.input.inputProcessor = inputs
 
         val viewp = ScreenViewport(cam)
-        stage = Stage(viewp, batch)
+        mediator.createStage(viewp, batch)
+        val stage = mediator.stage()
         stage.isDebugAll = true
 
         val map = assets.get<TiledMap>("tilemap/untitled.tmx")
@@ -103,9 +93,10 @@ class Main : Game() {
 
         inputs.addProcessor(stage)
 
+        engine.addSystem(StageRenderingSystem(stage, 0))
+        engine.addSystem(SpriteRenderingSystem())
+        //engine.addSystem(TilemapRenderingSystem())
         world.create()
-        engine.addSystem(RenderingSystem(stage, 0))
-
     }
 
     override fun render() {
@@ -127,17 +118,17 @@ class Main : Game() {
 
     override fun dispose() {
         batch.dispose()
-        img.dispose()
+        assets.dispose()
         font.dispose()
         uiStage.dispose()
-        stage.dispose()
+        mediator.dispose()
     }
 
     override fun resize(width: Int, height: Int) {
         cam.viewportWidth = width.toFloat()
         cam.viewportHeight = height.toFloat()
         uiStage.viewport.update(width, height, true)
-        stage.viewport.update(width, height, true)
+        mediator.stage().viewport.update(width, height, true)
     }
 
     private fun initAssets() {

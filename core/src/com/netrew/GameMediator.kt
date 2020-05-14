@@ -1,6 +1,9 @@
 package com.netrew
 
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.netrew.net.GameClient
 
 class GameMediator {
@@ -18,5 +21,18 @@ class GameMediator {
 
     fun assets(): AssetManager {
         return Globals.assets
+    }
+
+    fun createStage(viewport: ScreenViewport, batch: SpriteBatch) {
+        Globals.stage = Stage(viewport, batch)
+    }
+
+    fun stage(): Stage {
+        return Globals.stage
+    }
+
+    fun dispose() {
+        Globals.stage.dispose()
+        Globals.assets.dispose()
     }
 }
