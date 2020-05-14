@@ -1,6 +1,7 @@
 package com.netrew
 
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
@@ -29,6 +30,10 @@ class GameMediator {
 
     fun stage(): Stage {
         return Globals.stage
+    }
+
+    fun camera(): OrthographicCamera {
+        return Globals.cam
     }
 
     fun dispose() {

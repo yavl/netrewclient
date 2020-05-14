@@ -7,7 +7,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.netrew.game.Mappers
 import com.netrew.game.components.SpriteComponent
 
-class SpriteRenderingSystem : IteratingSystem(Family.all(SpriteComponent::class.java).get()) {
+class SpriteMovementSystem : IteratingSystem(Family.all(SpriteComponent::class.java).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val sprite = Mappers.sprite.get(entity)
         val transform = Mappers.transform.get(entity)

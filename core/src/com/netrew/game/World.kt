@@ -40,6 +40,7 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
+        transform.scale.set(4f, 4f)
         entity.add(transform)
 
         val tilemap = engine.createComponent(TilemapComponent::class.java)
@@ -64,6 +65,7 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
         with(sprite.image) {
             setColor(1f, 1f, 1f, 1f)
             setSize(size.toFloat(), size.toFloat())
+            setScale(transform.scale.x, transform.scale.y)
             setOrigin(chelTexture.width / 2.0f, chelTexture.width / 2.0f)
             onClick {
                 println("asdlokasd")

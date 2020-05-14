@@ -5,8 +5,6 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.Array
-import com.netrew.game.Chel
 
 class InputManager(private val main: Main, private val cam: OrthographicCamera) : InputProcessor {
     private val camSpeed = 500.0f

@@ -1,5 +1,6 @@
 package com.netrew
 
+import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
@@ -11,15 +12,15 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
 import com.badlogic.gdx.utils.viewport.ScreenViewport
+import com.netrew.game.TilemapEntityListener
 import com.netrew.game.World
-import com.netrew.game.systems.SpriteRenderingSystem
+import com.netrew.game.components.TilemapComponent
+import com.netrew.game.systems.SpriteMovementSystem
 import com.netrew.game.systems.StageRenderingSystem
 import com.netrew.game.systems.TilemapRenderingSystem
 import com.netrew.ui.GameHud
@@ -29,7 +30,6 @@ import java.io.StringWriter
 class Main : Game() {
     private lateinit var batch: SpriteBatch
     private lateinit var img: Texture
-    private var cam: OrthographicCamera = OrthographicCamera();
     lateinit var inputManager: InputManager
     lateinit var menu: MainMenu
     lateinit var hud: GameHud
@@ -38,13 +38,12 @@ class Main : Game() {
     lateinit private var font: BitmapFont
     lateinit var skin: Skin
     //
-    lateinit internal var renderer: OrthogonalTiledMapRenderer
     lateinit internal var assets: AssetManager
-    lateinit var imageActor: Image
 
     val engine = PooledEngine()
     val mediator = GameMediator()
     val world = World(mediator, engine)
+    val cam = mediator.camera()
 
     override fun create() {
         initAssets()
@@ -77,10 +76,6 @@ class Main : Game() {
         val stage = mediator.stage()
         stage.isDebugAll = true
 
-        val map = assets.get<TiledMap>("tilemap/untitled.tmx")
-        val unitScale = 4f
-        renderer = OrthogonalTiledMapRenderer(map, unitScale)
-
         val file = Gdx.files.local("config.json")
         val writer = StringWriter()
         val json = Json(JsonWriter.OutputType.json)
@@ -93,9 +88,10 @@ class Main : Game() {
 
         inputs.addProcessor(stage)
 
+        engine.addSystem(TilemapRenderingSystem(mediator))
         engine.addSystem(StageRenderingSystem(stage, 0))
-        engine.addSystem(SpriteRenderingSystem())
-        //engine.addSystem(TilemapRenderingSystem())
+        engine.addSystem(SpriteMovementSystem())
+        engine.addEntityListener(Family.all(TilemapComponent::class.java).get(), TilemapEntityListener())
         world.create()
     }
 
@@ -106,9 +102,6 @@ class Main : Game() {
 
         cam.update()
         batch.projectionMatrix = cam.combined
-
-        renderer.setView(cam)
-        renderer.render()
 
         engine.update(dt)
 
