@@ -4,12 +4,13 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.netrew.net.GameClient
 
 class GameMediator {
     fun connect(ip: String, tcpPort: Int, udpPort: Int) {
-         Globals.client = GameClient(ip, tcpPort, udpPort)
+         Globals.client = GameClient(ip, tcpPort, udpPort, this)
     }
 
     fun disconnect() {
@@ -34,6 +35,9 @@ class GameMediator {
 
     fun camera(): OrthographicCamera {
         return Globals.cam
+    }
+
+    fun appendChatLabelText(text: String) {
     }
 
     fun dispose() {

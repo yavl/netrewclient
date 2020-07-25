@@ -3,19 +3,19 @@ package com.netrew.ui
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.Align
 import com.netrew.GameMediator
 import com.netrew.Main
-import com.netrew.net.requests.SomeRequest
+import com.netrew.net.requests.ChatMessage
 import ktx.actors.onClick
 import ktx.actors.onKeyDown
 
-class GameHud(private val main: Main, val mediator: GameMediator) : Screen {
-    private val stage = main.uiStage
-    private val skin = main.skin
+class GameHud(val mediator: GameMediator, val stage: Stage, val skin: Skin) : Screen {
     val chatLabel = Label("Not connected", skin)
     val disconnectButton = TextButton("Disconnect", skin)
     val chatTextField = TextField("", skin)
@@ -33,8 +33,7 @@ class GameHud(private val main: Main, val mediator: GameMediator) : Screen {
 
     fun onChatEnter(text: String) {
         toggleChatTextField(false)
-        chatLabel.setText(chatLabel.text.toString() + "\n${text}")
-        val request = SomeRequest()
+        val request = ChatMessage()
         request.text = text
         mediator.client().client.sendTCP(request)
     }
@@ -95,7 +94,7 @@ class GameHud(private val main: Main, val mediator: GameMediator) : Screen {
 
     }
 
-    fun update() {
-        // update chatLabel on enter & receive
+    fun appendChatLabelText(text: String) {
+        chatLabel.setText(chatLabel.text.toString() + "\n${text}")
     }
 }

@@ -121,7 +121,7 @@ class Main : Game() {
         cam.viewportWidth = width.toFloat()
         cam.viewportHeight = height.toFloat()
         uiStage.viewport.update(width, height, true)
-        mediator.stage().viewport.update(width, height, true)
+        mediator.stage().viewport.update(width, height)
     }
 
     private fun initAssets() {

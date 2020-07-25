@@ -1,5 +1,5 @@
 package com.netrew.net.requests
 
-class SomeRequest() {
+class ChatMessage() {
     var text = ""
 }
