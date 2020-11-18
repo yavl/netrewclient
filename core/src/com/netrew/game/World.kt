@@ -7,6 +7,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.netrew.GameMediator
+import com.netrew.Globals
 import com.netrew.game.components.SpriteComponent
 import com.netrew.game.components.TilemapComponent
 import com.netrew.game.components.TransformComponent
@@ -68,6 +69,7 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
             setScale(transform.scale.x, transform.scale.y)
             setOrigin(chelTexture.width / 2.0f, chelTexture.width / 2.0f)
             onClick {
+                Globals.clickedCharacter = sprite
                 println("asdlokasd")
             }
         }

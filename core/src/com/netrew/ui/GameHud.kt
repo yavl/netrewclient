@@ -51,7 +51,7 @@ class GameHud(val mediator: GameMediator, val stage: Stage, val skin: Skin) : Sc
             x = Gdx.graphics.width - disconnectButton.width
             y = Gdx.graphics.height - disconnectButton.height
             onClick {
-                main.screen = main.menu
+                //main.screen = main.menu
                 mediator.disconnect()
             }
         }

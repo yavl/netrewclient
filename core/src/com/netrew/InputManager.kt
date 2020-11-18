@@ -12,6 +12,11 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera) 
     private val dragNew = Vector2()
 
     override fun keyDown(keycode: Int): Boolean {
+        if (keycode == Input.Keys.RIGHT) {
+            val sprite = Globals.clickedCharacter
+            sprite?.moveTo(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
+            println(Gdx.input.x)
+        }
         return false
     }
 
@@ -39,10 +44,10 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera) 
         return false
     }
 
-    override fun scrolled(amount: Int): Boolean {
-        when (amount) {
-            1 -> cam.zoom += 0.15f * cam.zoom
-            -1 -> cam.zoom -= 0.15f * cam.zoom
+    override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        when (amountY) {
+            1f -> cam.zoom += 0.15f * cam.zoom
+            -1f -> cam.zoom -= 0.15f * cam.zoom
         }
         return false
     }

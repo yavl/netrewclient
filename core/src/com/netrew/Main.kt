@@ -63,7 +63,7 @@ class Main : Game() {
         skin.add("white", Texture(pixmap))
 
         menu = MainMenu(this, mediator)
-        hud = GameHud(this, mediator)
+        //hud = GameHud(this, mediator)
         setScreen(menu)
 
         inputManager = InputManager(this, cam)
