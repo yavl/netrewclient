@@ -16,10 +16,6 @@ class SpriteComponent : Component, Pool.Poolable {
     }
 
     fun moveTo(x: Float, y: Float, screenPos: Boolean) {
-        val x: Float
-        if (screenPos) {
-            x = Globals.cam.unproject(Vector3(1f, 1f, 1f))
-        }
         image.addAction(Actions.moveTo(x, y, 5f))
     }
 }

@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.netrew.game.TilemapEntityListener
 import com.netrew.game.World
 import com.netrew.game.components.TilemapComponent
+import com.netrew.game.systems.LabelRenderingSystem
 import com.netrew.game.systems.SpriteMovementSystem
 import com.netrew.game.systems.StageRenderingSystem
 import com.netrew.game.systems.TilemapRenderingSystem
@@ -91,6 +92,7 @@ class Main : Game() {
         engine.addSystem(TilemapRenderingSystem(mediator))
         engine.addSystem(StageRenderingSystem(stage, 0))
         engine.addSystem(SpriteMovementSystem())
+        engine.addSystem(LabelRenderingSystem())
         engine.addEntityListener(Family.all(TilemapComponent::class.java).get(), TilemapEntityListener())
         world.create()
     }

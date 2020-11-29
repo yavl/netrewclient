@@ -14,7 +14,7 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera) 
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Input.Keys.RIGHT) {
             val sprite = Globals.clickedCharacter
-            sprite?.moveTo(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
+            //sprite?.moveTo(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
             println(Gdx.input.x)
         }
         return false

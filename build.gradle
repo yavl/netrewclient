@@ -49,7 +49,7 @@ project(":core") {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
         compile "com.badlogicgames.gdx:gdx-ai:1.8.1"
         compile "com.badlogicgames.ashley:ashley:1.7.3"
-        compile group: 'io.github.libktx', name: 'ktx-actors', version: '1.9.10-b5'
+        compile group: 'io.github.libktx', name: 'ktx-actors', version: '1.9.11-b2'
         compile group: 'com.esotericsoftware', name: 'kryonet', version: '2.22.0-RC1'
     }
 }
