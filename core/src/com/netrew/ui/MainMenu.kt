@@ -1,36 +1,32 @@
 package com.netrew.ui
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.badlogic.gdx.scenes.scene2d.ui.TextField
-import com.esotericsoftware.kryonet.Client
+import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.utils.Align
 import com.netrew.GameMediator
+import com.netrew.Globals
 import com.netrew.Main
-import com.netrew.net.GameClient
+import ktx.actors.alpha
 import ktx.actors.onClick
+import ktx.actors.txt
+import ktx.scene2d.*
 
 class MainMenu(private val main: Main, val mediator: GameMediator) : Screen {
     private val stage = main.uiStage
-    private val skin = main.skin
+    private val skin = mediator.skin()
     private val nameTextField = TextField("default_name", skin)
     private val ipTextField = TextField("127.0.0.1", skin)
     private val connectButton = TextButton("Connect", skin)
+    lateinit var debugLabel: Label
+    lateinit var scroll: ScrollPane
+
+    init {
+        Globals.mainMenu = this
+    }
 
     override fun show() {
-        stage.addActor(ipTextField)
-
-        nameTextField.y = ipTextField.y + ipTextField.height
-        stage.addActor(nameTextField)
-
-        connectButton.x = ipTextField.x + ipTextField.width
-        connectButton.height = 30f
-        connectButton.onClick {
-            main.screen = main.hud
-            mediator.connect(ipTextField.text, 13370, 13371)
-        }
-        stage.addActor(connectButton)
+        showDebugWindow()
     }
 
     override fun render(delta: Float) {
@@ -57,4 +53,27 @@ class MainMenu(private val main: Main, val mediator: GameMediator) : Screen {
     }
 
     override fun dispose() {}
+
+    fun showDebugWindow() {
+        /// Debug menu:
+        debugLabel = scene2d.label("Netrew gameфыв")
+        debugLabel.setAlignment(Align.topLeft)
+        debugLabel.setFontScale(1.5f)
+
+        scroll = scene2d.scrollPane {
+            addActor(debugLabel)
+        }
+        val scrollWidth = Gdx.graphics.width / 4f
+        val scrollHeight = Gdx.graphics.height / 4f
+        scroll.debug()
+        scroll.setPosition(0f, Gdx.graphics.height.toFloat() * 0.5f - scroll.height)
+        scroll.setSize(scrollWidth, scrollHeight)
+        scroll.style.background = null
+        stage.addActor(scroll)
+    }
+
+    fun appendDebugText(text: String) {
+        debugLabel.txt = debugLabel.txt + '\n' + text
+        scroll.scrollTo(0f, scroll.maxHeight, 0f, 0f)
+    }
 }

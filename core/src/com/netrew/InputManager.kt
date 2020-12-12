@@ -5,6 +5,11 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Json
+import com.badlogic.gdx.utils.JsonWriter
+import com.netrew.game.Mappers
+import com.netrew.game.components.TransformComponent
+import java.io.StringWriter
 
 class InputManager(private val main: Main, private val cam: OrthographicCamera) : InputProcessor {
     private val camSpeed = 500.0f
@@ -14,8 +19,8 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera) 
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Input.Keys.RIGHT) {
             val sprite = Globals.clickedCharacter
-            //sprite?.moveTo(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
-            println(Gdx.input.x)
+            val dest = Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos();
+            Mappers.entityBySpriteComponent[sprite].getComponent(TransformComponent::class.java).pos.set(dest.x, dest.x)
         }
         return false
     }
@@ -67,10 +72,17 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera) 
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit()
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Y) && main.screen === main.hud) {
-            main.hud.toggleChatTextField(true)
-            main.uiStage.keyboardFocus = main.hud.chatTextField
+
+            val file = Gdx.files.local("config.json")
+            val writer = StringWriter()
+            val json = Json(JsonWriter.OutputType.json)
+            json.setWriter(writer)
+            json.writeObjectStart()
+            json.writeValue("cameraPosX", cam.position.x)
+            json.writeValue("cameraPosY", cam.position.y)
+            json.writeValue("cameraZoom", cam.zoom)
+            json.writeObjectEnd()
+            file.writeString(json.prettyPrint(json.writer.writer.toString()), false)
         }
 
         if (Gdx.input.justTouched()) {

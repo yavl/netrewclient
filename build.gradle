@@ -21,6 +21,7 @@ allprojects {
     ext {
         appName = "Netrew"
         gdxVersion = '1.9.12'
+        typingLabelVersion = '1.2.0'
     }
 
     repositories {
@@ -50,7 +51,9 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-ai:1.8.1"
         compile "com.badlogicgames.ashley:ashley:1.7.3"
         compile group: 'io.github.libktx', name: 'ktx-actors', version: '1.9.11-b2'
+        compile group: 'io.github.libktx', name: 'ktx-scene2d', version: '1.9.10-b6'
         compile group: 'com.esotericsoftware', name: 'kryonet', version: '2.22.0-RC1'
+        api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
     }
 }
 

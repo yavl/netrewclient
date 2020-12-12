@@ -14,8 +14,4 @@ class SpriteComponent : Component, Pool.Poolable {
     override fun reset() {
         TODO("Not yet implemented")
     }
-
-    fun moveTo(x: Float, y: Float, screenPos: Boolean) {
-        image.addAction(Actions.moveTo(x, y, 5f))
-    }
 }

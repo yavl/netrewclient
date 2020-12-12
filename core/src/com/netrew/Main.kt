@@ -14,19 +14,18 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.JsonWriter
+import com.badlogic.gdx.utils.JsonReader
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.netrew.game.TilemapEntityListener
 import com.netrew.game.World
 import com.netrew.game.components.TilemapComponent
-import com.netrew.game.systems.LabelRenderingSystem
-import com.netrew.game.systems.SpriteMovementSystem
+import com.netrew.game.systems.NameLabelRenderingSystem
+import com.netrew.game.systems.SpriteRenderingSystem
 import com.netrew.game.systems.StageRenderingSystem
 import com.netrew.game.systems.TilemapRenderingSystem
 import com.netrew.ui.GameHud
 import com.netrew.ui.MainMenu
-import java.io.StringWriter
+import ktx.scene2d.Scene2DSkin
 
 class Main : Game() {
     private lateinit var batch: SpriteBatch
@@ -37,7 +36,6 @@ class Main : Game() {
     private val inputs = InputMultiplexer()
     lateinit var uiStage: Stage
     lateinit private var font: BitmapFont
-    lateinit var skin: Skin
     //
     lateinit internal var assets: AssetManager
 
@@ -57,11 +55,12 @@ class Main : Game() {
         font = assets.get<BitmapFont>("fonts/ubuntu-16.fnt")
         font.region.texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
-        skin = assets.get("DefaultSkin/uiskin.json")
+        Globals.skin = assets.get("DefaultSkin/uiskin.json")
+        Scene2DSkin.defaultSkin = Globals.skin
         val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
         pixmap.setColor(Color.WHITE)
         pixmap.fill()
-        skin.add("white", Texture(pixmap))
+        Globals.skin.add("white", Texture(pixmap))
 
         menu = MainMenu(this, mediator)
         //hud = GameHud(this, mediator)
@@ -77,22 +76,20 @@ class Main : Game() {
         val stage = mediator.stage()
         stage.isDebugAll = true
 
-        val file = Gdx.files.local("config.json")
-        val writer = StringWriter()
-        val json = Json(JsonWriter.OutputType.json)
-        json.setWriter(writer)
-        json.writeObjectStart()
-        json.writeValue("cameraSpeed", 500f)
-        json.writeValue("cameraZoomFactor", 0.15f)
-        json.writeObjectEnd()
-        file.writeString(json.prettyPrint(json.writer.writer.toString()), false)
+        val jsonReader = JsonReader()
+        val jsonValue = jsonReader.parse(Gdx.files.local("config.json"))
+        val x = jsonValue.get("cameraPosX").asFloat()
+        val y = jsonValue.get("cameraPosY").asFloat()
+        val zoom = jsonValue.get("cameraZoom").asFloat()
+        cam.position.set(x, y, 0f)
+        cam.zoom = zoom
 
         inputs.addProcessor(stage)
 
         engine.addSystem(TilemapRenderingSystem(mediator))
         engine.addSystem(StageRenderingSystem(stage, 0))
-        engine.addSystem(SpriteMovementSystem())
-        engine.addSystem(LabelRenderingSystem())
+        engine.addSystem(SpriteRenderingSystem())
+        engine.addSystem(NameLabelRenderingSystem())
         engine.addEntityListener(Family.all(TilemapComponent::class.java).get(), TilemapEntityListener())
         world.create()
     }

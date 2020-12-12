@@ -2,24 +2,23 @@ package com.netrew.game
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.ui.Image
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.utils.Align
 import com.netrew.GameMediator
 import com.netrew.Globals
+import com.netrew.game.components.LabelComponent
 import com.netrew.game.components.SpriteComponent
 import com.netrew.game.components.TilemapComponent
 import com.netrew.game.components.TransformComponent
+import com.netrew.toWorldPos
 import ktx.actors.onClick
-import ktx.actors.onClickEvent
-import kotlin.math.abs
+import kotlin.concurrent.thread
 
 class World(val mediator: GameMediator, val engine: PooledEngine) {
     lateinit var chelTexture: Texture
@@ -32,19 +31,18 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
         tiledMap = mediator.assets().get<TiledMap>("tilemap/untitled.tmx")
 
         createTerrain()
-        createPixmapTerrain()
+        //createPixmapTerrain()
 
-        createChel(Vector2(5165f, 5150f))
-        createChel(Vector2(5046f, 5371f))
-        createChel(Vector2(5173f, 5379f))
-        createChel(Vector2(5134f, 5269f))
-        //sprites.forEach { chel -> chel.sprite.setColor(245f / 255f, 208f / 255f, 141f / 255f, 255f / 255f) }
+        createCharacter(Vector2(5165f, 5150f))
+        createCharacter(Vector2(5046f, 5371f))
+        createCharacter(Vector2(5173f, 5379f))
+        createCharacter(Vector2(5134f, 5269f))
 
-        createChel(Vector2(6417f, 6790f))
-        createChel(Vector2(4871f, 4794f))
-        createChel(Vector2(4842f, 4970f))
-        createChel(Vector2(4715f, 4886f))
-        createChel(Vector2(4824f, 4904f))
+        createCharacter(Vector2(6417f, 6790f))
+        createCharacter(Vector2(4871f, 4794f))
+        createCharacter(Vector2(4842f, 4970f))
+        createCharacter(Vector2(4715f, 4886f))
+        createCharacter(Vector2(4824f, 4904f))
     }
 
     fun createTerrain() {
@@ -62,8 +60,8 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
     }
 
     fun createPixmapTerrain() {
-        var pixmap = Pixmap(64, 64, Pixmap.Format.RGBA8888)
-        pixmap.setColor(Color.rgba8888(0f, 39f/100f, 65f/100f, 0.6f))
+        val pixmap = Pixmap(64, 64, Pixmap.Format.RGBA8888)
+        pixmap.setColor(Color.rgba8888(0f, 39f / 100f, 65f / 100f, 0.6f))
         pixmap.fill()
         pixmap.setColor(Color.BLACK)
         pixmap.drawPixel(32, 32)
@@ -91,7 +89,7 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
         engine.addEntity(entity)
     }
 
-    fun createChel(pos: Vector2, color: Color = Color(1f, 1f, 1f, 1f)) {
+    fun createCharacter(pos: Vector2, color: Color = Color(1f, 1f, 1f, 1f)) {
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
@@ -107,28 +105,25 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
             setColor(1f, 1f, 1f, 1f)
             setSize(size.toFloat(), size.toFloat())
             setScale(transform.scale.x, transform.scale.y)
-            setOrigin(chelTexture.width / 2.0f, chelTexture.width / 2.0f)
+            setOrigin(Align.center)
             onClick {
                 Globals.clickedCharacter = sprite
-                println("asdlokasd")
+                mediator.addText("name: ${transform.pos.x}; ${transform.pos.y}")
+                transform.pos.set(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
+                println(transform.pos)
             }
         }
         entity.add(sprite)
         mediator.stage().addActor(Mappers.sprite.get(entity).image)
 
-        engine.addEntity(entity)
-    }
-}
+        val nameLabel = engine.createComponent(LabelComponent::class.java)
+        entity.add(nameLabel)
+        val group = Group()
+        group.isTransform = true
+        group.addActor(nameLabel.label)
+        mediator.stage().addActor(group)
 
-inline fun Actor.onRightClick(crossinline listener: () -> Unit): ClickListener {
-    val clickListener = object : ClickListener() {
-        override fun keyDown(event: InputEvent, keycode: Int): Boolean {
-            if (keycode == Input.Keys.LEFT) {
-                listener()
-            }
-            return false
-        }
+        engine.addEntity(entity)
+        Mappers.entityBySpriteComponent.put(sprite, entity)
     }
-    this.addListener(clickListener)
-    return clickListener
 }
