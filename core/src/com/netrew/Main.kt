@@ -19,10 +19,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.netrew.game.TilemapEntityListener
 import com.netrew.game.World
 import com.netrew.game.components.TilemapComponent
-import com.netrew.game.systems.NameLabelRenderingSystem
-import com.netrew.game.systems.SpriteRenderingSystem
-import com.netrew.game.systems.StageRenderingSystem
-import com.netrew.game.systems.TilemapRenderingSystem
+import com.netrew.game.systems.*
 import com.netrew.ui.GameHud
 import com.netrew.ui.MainMenu
 import ktx.scene2d.Scene2DSkin
@@ -86,6 +83,7 @@ class Main : Game() {
 
         inputs.addProcessor(stage)
 
+        engine.addSystem(MovementSystem())
         engine.addSystem(TilemapRenderingSystem(mediator))
         engine.addSystem(StageRenderingSystem(stage, 0))
         engine.addSystem(SpriteRenderingSystem())

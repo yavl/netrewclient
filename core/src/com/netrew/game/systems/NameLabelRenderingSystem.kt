@@ -6,16 +6,25 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.netrew.game.Mappers
 import com.netrew.game.components.LabelComponent
+import com.netrew.game.components.NameComponent
+import com.netrew.game.components.SpriteComponent
+import com.netrew.game.components.TransformComponent
 
-class NameLabelRenderingSystem : IteratingSystem(Family.all(LabelComponent::class.java).get()) {
+class NameLabelRenderingSystem : IteratingSystem(Family.all(
+        LabelComponent::class.java,
+        TransformComponent::class.java,
+        SpriteComponent::class.java,
+        NameComponent::class.java).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val transform = Mappers.transform.get(entity)
         val labelComponent = Mappers.label.get(entity)
         val sprite = Mappers.sprite.get(entity)
+        val name = Mappers.name.get(entity)
 
         val label = labelComponent.label
         label.x = transform.pos.x - label.width / 2f
         label.y = transform.pos.y - label.height - sprite.image.height / 2f
+        label.setText(name.name)
         // work in progress
     }
 }

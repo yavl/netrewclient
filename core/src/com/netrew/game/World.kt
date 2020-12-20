@@ -12,13 +12,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.Align
 import com.netrew.GameMediator
 import com.netrew.Globals
-import com.netrew.game.components.LabelComponent
-import com.netrew.game.components.SpriteComponent
-import com.netrew.game.components.TilemapComponent
-import com.netrew.game.components.TransformComponent
+import com.netrew.game.components.*
 import com.netrew.toWorldPos
 import ktx.actors.onClick
-import kotlin.concurrent.thread
 
 class World(val mediator: GameMediator, val engine: PooledEngine) {
     lateinit var chelTexture: Texture
@@ -98,11 +94,14 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
         }
         entity.add(transform)
 
+        val velocity = engine.createComponent(VelocityComponent::class.java)
+        entity.add(velocity)
+
         val size = 32
         val sprite = engine.createComponent(SpriteComponent::class.java)
         sprite.image = Image(chelTexture)
         with(sprite.image) {
-            setColor(1f, 1f, 1f, 1f)
+            setColor(color)
             setSize(size.toFloat(), size.toFloat())
             setScale(transform.scale.x, transform.scale.y)
             setOrigin(Align.center)
@@ -116,7 +115,13 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
         entity.add(sprite)
         mediator.stage().addActor(Mappers.sprite.get(entity).image)
 
+        val nameAssigner = NameAssigner("names.txt")
+        val name = engine.createComponent(NameComponent::class.java)
+        name.name = nameAssigner.getUnassignedName()
+        entity.add(name)
+
         val nameLabel = engine.createComponent(LabelComponent::class.java)
+        nameLabel.label.setText(nameAssigner.getUnassignedName())
         entity.add(nameLabel)
         val group = Group()
         group.isTransform = true
