@@ -73,16 +73,11 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera) 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit()
 
-            val file = Gdx.files.local("config.json")
-            val writer = StringWriter()
-            val json = Json(JsonWriter.OutputType.json)
-            json.setWriter(writer)
-            json.writeObjectStart()
-            json.writeValue("cameraPosX", cam.position.x)
-            json.writeValue("cameraPosY", cam.position.y)
-            json.writeValue("cameraZoom", cam.zoom)
-            json.writeObjectEnd()
-            file.writeString(json.prettyPrint(json.writer.writer.toString()), false)
+            val prefs = Gdx.app.getPreferences("NetrewPreferences")
+            prefs.putFloat("cameraPosX", cam.position.x)
+            prefs.putFloat("cameraPosY", cam.position.y)
+            prefs.putFloat("cameraZoom", cam.zoom)
+            prefs.flush()
         }
 
         if (Gdx.input.justTouched()) {

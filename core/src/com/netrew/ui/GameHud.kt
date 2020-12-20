@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.Align
 import com.netrew.GameMediator
-import com.netrew.Main
 import com.netrew.net.requests.ChatMessage
 import ktx.actors.onClick
 import ktx.actors.onKeyDown

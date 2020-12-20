@@ -3,7 +3,6 @@ package com.netrew.game.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.netrew.game.Mappers
 import com.netrew.game.components.LabelComponent
 import com.netrew.game.components.NameComponent

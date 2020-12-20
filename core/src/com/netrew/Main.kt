@@ -7,14 +7,16 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver
-import com.badlogic.gdx.graphics.*
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.utils.JsonReader
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.netrew.game.TilemapEntityListener
 import com.netrew.game.World
@@ -73,11 +75,10 @@ class Main : Game() {
         val stage = mediator.stage()
         stage.isDebugAll = true
 
-        val jsonReader = JsonReader()
-        val jsonValue = jsonReader.parse(Gdx.files.local("config.json"))
-        val x = jsonValue.get("cameraPosX").asFloat()
-        val y = jsonValue.get("cameraPosY").asFloat()
-        val zoom = jsonValue.get("cameraZoom").asFloat()
+        val prefs = Gdx.app.getPreferences("NetrewPreferences")
+        val x = prefs.getFloat("cameraPosX", 0f)
+        val y = prefs.getFloat("cameraPosY", 0f)
+        val zoom = prefs.getFloat("cameraZoom", 1f)
         cam.position.set(x, y, 0f)
         cam.zoom = zoom
 
@@ -119,6 +120,7 @@ class Main : Game() {
         cam.viewportHeight = height.toFloat()
         uiStage.viewport.update(width, height, true)
         mediator.stage().viewport.update(width, height)
+        menu.resize(width, height)
     }
 
     private fun initAssets() {

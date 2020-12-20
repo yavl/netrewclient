@@ -88,6 +88,11 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
     fun createCharacter(pos: Vector2, color: Color = Color(1f, 1f, 1f, 1f)) {
         val entity = engine.createEntity()
 
+        val nameAssigner = NameAssigner("names.txt")
+        val name = engine.createComponent(NameComponent::class.java)
+        name.name = nameAssigner.getUnassignedName()
+        entity.add(name)
+
         val transform = engine.createComponent(TransformComponent::class.java)
         with(transform) {
             this.pos.set(pos)
@@ -107,18 +112,13 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
             setOrigin(Align.center)
             onClick {
                 Globals.clickedCharacter = sprite
-                mediator.addText("name: ${transform.pos.x}; ${transform.pos.y}")
+                mediator.addText("${name.name}: ${transform.pos.x}; ${transform.pos.y}")
                 transform.pos.set(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
                 println(transform.pos)
             }
         }
         entity.add(sprite)
         mediator.stage().addActor(Mappers.sprite.get(entity).image)
-
-        val nameAssigner = NameAssigner("names.txt")
-        val name = engine.createComponent(NameComponent::class.java)
-        name.name = nameAssigner.getUnassignedName()
-        entity.add(name)
 
         val nameLabel = engine.createComponent(LabelComponent::class.java)
         nameLabel.label.setText(nameAssigner.getUnassignedName())

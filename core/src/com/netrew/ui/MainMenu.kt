@@ -2,15 +2,18 @@ package com.netrew.ui
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.Align
 import com.netrew.GameMediator
 import com.netrew.Globals
 import com.netrew.Main
-import ktx.actors.alpha
-import ktx.actors.onClick
 import ktx.actors.txt
-import ktx.scene2d.*
+import ktx.scene2d.label
+import ktx.scene2d.scene2d
+import ktx.scene2d.scrollPane
 
 class MainMenu(private val main: Main, val mediator: GameMediator) : Screen {
     private val stage = main.uiStage
@@ -35,7 +38,10 @@ class MainMenu(private val main: Main, val mediator: GameMediator) : Screen {
     }
 
     override fun resize(width: Int, height: Int) {
-
+        val scrollWidth = Gdx.graphics.width / 3f
+        val scrollHeight = Gdx.graphics.height / 4f
+        scroll.setPosition(0f, Gdx.graphics.height.toFloat() * 0.5f - scroll.height)
+        scroll.setSize(scrollWidth, scrollHeight)
     }
 
     override fun pause() {

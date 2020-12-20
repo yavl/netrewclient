@@ -3,7 +3,6 @@ package com.netrew.game.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.math.Vector2
 import com.netrew.game.Mappers
 import com.netrew.game.components.TransformComponent
 import com.netrew.game.components.VelocityComponent
