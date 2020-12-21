@@ -10,10 +10,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.Align
-import com.netrew.GameMediator
-import com.netrew.Globals
+import com.netrew.*
 import com.netrew.game.components.*
-import com.netrew.toWorldPos
 import ktx.actors.onClick
 
 class World(val mediator: GameMediator, val engine: PooledEngine) {
@@ -114,7 +112,12 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
                 Globals.clickedCharacter = sprite
                 mediator.addText("${name.name}: ${transform.pos.x}; ${transform.pos.y}")
                 transform.pos.set(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
-                println(transform.pos)
+            }
+            onHover {
+                mediator.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
+            }
+            onHoverEnd {
+                mediator.hidePopupMenu()
             }
         }
         entity.add(sprite)

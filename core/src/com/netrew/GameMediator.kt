@@ -1,13 +1,10 @@
 package com.netrew
 
-import com.badlogic.gdx.Gdx
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.netrew.net.GameClient
@@ -52,5 +49,13 @@ class GameMediator {
 
     fun addText(text: String) {
         Globals.mainMenu.appendDebugText(text)
+    }
+
+    fun showPopupMenu(mouseX: Float, mouseY: Float, entity: Entity) {
+        Globals.mainMenu.showPopupMenu(mouseX, mouseY, entity)
+    }
+
+    fun hidePopupMenu() {
+        Globals.mainMenu.hidePopupMenu()
     }
 }

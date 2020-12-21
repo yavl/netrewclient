@@ -22,7 +22,6 @@ import com.netrew.game.TilemapEntityListener
 import com.netrew.game.World
 import com.netrew.game.components.TilemapComponent
 import com.netrew.game.systems.*
-import com.netrew.ui.GameHud
 import com.netrew.ui.MainMenu
 import ktx.scene2d.Scene2DSkin
 
@@ -31,7 +30,6 @@ class Main : Game() {
     private lateinit var img: Texture
     lateinit var inputManager: InputManager
     lateinit var menu: MainMenu
-    lateinit var hud: GameHud
     private val inputs = InputMultiplexer()
     lateinit var uiStage: Stage
     lateinit private var font: BitmapFont
@@ -47,6 +45,7 @@ class Main : Game() {
         initAssets()
         batch = SpriteBatch()
         uiStage = Stage(ScreenViewport())
+        uiStage.isDebugAll = false
         cam.viewportWidth = Gdx.graphics.width.toFloat()
         cam.viewportHeight = Gdx.graphics.height.toFloat()
         cam.position.set(cam.viewportWidth / 2, cam.viewportHeight / 2, 0f)

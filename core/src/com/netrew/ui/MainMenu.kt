@@ -1,28 +1,25 @@
 package com.netrew.ui
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.badlogic.gdx.scenes.scene2d.ui.TextField
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.utils.Align
 import com.netrew.GameMediator
 import com.netrew.Globals
 import com.netrew.Main
+import com.netrew.ui.widgets.PopupMenu
 import ktx.actors.txt
 import ktx.scene2d.label
 import ktx.scene2d.scene2d
 import ktx.scene2d.scrollPane
 
-class MainMenu(private val main: Main, val mediator: GameMediator) : Screen {
+class MainMenu(private val main: Main, mediator: GameMediator) : Screen {
     private val stage = main.uiStage
     private val skin = mediator.skin()
-    private val nameTextField = TextField("default_name", skin)
-    private val ipTextField = TextField("127.0.0.1", skin)
-    private val connectButton = TextButton("Connect", skin)
     lateinit var debugLabel: Label
     lateinit var scroll: ScrollPane
+    lateinit var popupMenu: PopupMenu
 
     init {
         Globals.mainMenu = this
@@ -53,9 +50,6 @@ class MainMenu(private val main: Main, val mediator: GameMediator) : Screen {
     }
 
     override fun hide() {
-        nameTextField.remove()
-        ipTextField.remove()
-        connectButton.remove()
     }
 
     override fun dispose() {}
@@ -81,5 +75,24 @@ class MainMenu(private val main: Main, val mediator: GameMediator) : Screen {
     fun appendDebugText(text: String) {
         debugLabel.txt = debugLabel.txt + '\n' + text
         scroll.scrollTo(0f, scroll.maxHeight, 0f, 0f)
+    }
+
+    fun showPopupMenu(mouseX: Float, mouseY: Float, entity: Entity) {
+        if (!this::popupMenu.isInitialized) {
+            popupMenu = PopupMenu()
+            stage.addActor(popupMenu)
+        }
+        else {
+            popupMenu.isVisible = true
+        }
+        popupMenu.selectedEntity = entity
+        popupMenu.build()
+        popupMenu.setPosition(mouseX, Gdx.graphics.height.toFloat() - mouseY)
+        appendDebugText("${popupMenu.x}, ${popupMenu.y}")
+    }
+
+    fun hidePopupMenu() {
+        popupMenu.isVisible = false
+        popupMenu.hide()
     }
 }
