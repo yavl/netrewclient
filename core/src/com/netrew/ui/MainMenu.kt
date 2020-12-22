@@ -3,19 +3,19 @@ package com.netrew.ui
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.utils.Align
-import com.netrew.GameMediator
+import com.netrew.Mediator
 import com.netrew.Globals
 import com.netrew.Main
 import com.netrew.ui.widgets.PopupMenu
 import ktx.actors.txt
-import ktx.scene2d.label
 import ktx.scene2d.scene2d
 import ktx.scene2d.scrollPane
 
-class MainMenu(private val main: Main, mediator: GameMediator) : Screen {
-    private val stage = main.uiStage
+class MainMenu(private val main: Main, mediator: Mediator) : Screen {
+    private val stage = mediator.uiStage()
     private val skin = mediator.skin()
     lateinit var debugLabel: Label
     lateinit var scroll: ScrollPane
@@ -56,9 +56,8 @@ class MainMenu(private val main: Main, mediator: GameMediator) : Screen {
 
     fun showDebugWindow() {
         /// Debug menu:
-        debugLabel = scene2d.label("Netrew gameфыв")
+        debugLabel = Label("Netrew game", Label.LabelStyle(Globals.chatFont, Color.WHITE))
         debugLabel.setAlignment(Align.topLeft)
-        debugLabel.setFontScale(1.5f)
 
         scroll = scene2d.scrollPane {
             addActor(debugLabel)
@@ -85,14 +84,12 @@ class MainMenu(private val main: Main, mediator: GameMediator) : Screen {
         else {
             popupMenu.isVisible = true
         }
-        popupMenu.selectedEntity = entity
-        popupMenu.build()
+        popupMenu.show(entity)
+        popupMenu.update(entity)
         popupMenu.setPosition(mouseX, Gdx.graphics.height.toFloat() - mouseY)
-        appendDebugText("${popupMenu.x}, ${popupMenu.y}")
     }
 
     fun hidePopupMenu() {
-        popupMenu.isVisible = false
         popupMenu.hide()
     }
 }

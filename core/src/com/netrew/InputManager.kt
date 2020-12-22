@@ -17,11 +17,6 @@ class InputManager(private val main: Main, private val cam: OrthographicCamera) 
     private val dragNew = Vector2()
 
     override fun keyDown(keycode: Int): Boolean {
-        if (keycode == Input.Keys.RIGHT) {
-            val sprite = Globals.clickedCharacter
-            val dest = Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos();
-            Mappers.entityBySpriteComponent[sprite].getComponent(TransformComponent::class.java).pos.set(dest.x, dest.x)
-        }
         return false
     }
 

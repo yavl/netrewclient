@@ -1,15 +1,19 @@
 package com.netrew
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.viewport.ScreenViewport
+import com.netrew.game.World
 import com.netrew.net.GameClient
+import com.strongjoshua.console.GUIConsole
 
-class GameMediator {
+class Mediator {
     fun connect(ip: String, tcpPort: Int, udpPort: Int) {
          Globals.client = GameClient(ip, tcpPort, udpPort, this)
     }
@@ -20,6 +24,14 @@ class GameMediator {
 
     fun client(): GameClient {
         return Globals.client
+    }
+
+    fun createConsole() {
+        Globals.console = GUIConsole(Globals.skin, true, Input.Keys.GRAVE)
+    }
+
+    fun console(): GUIConsole {
+        return Globals.console
     }
 
     fun assets(): AssetManager {
@@ -34,6 +46,10 @@ class GameMediator {
         return Globals.stage
     }
 
+    fun uiStage(): Stage {
+        return Globals.uiStage
+    }
+
     fun camera(): OrthographicCamera {
         return Globals.cam
     }
@@ -41,6 +57,9 @@ class GameMediator {
     fun dispose() {
         Globals.stage.dispose()
         Globals.assets.dispose()
+        Globals.defaultFont.dispose()
+        Globals.chatFont.dispose()
+        Globals.console.dispose()
     }
 
     fun skin(): Skin {
@@ -57,5 +76,13 @@ class GameMediator {
 
     fun hidePopupMenu() {
         Globals.mainMenu.hidePopupMenu()
+    }
+
+    fun bundle(): I18NBundle {
+        return Globals.bundle
+    }
+
+    fun world(): World {
+        return Globals.world
     }
 }

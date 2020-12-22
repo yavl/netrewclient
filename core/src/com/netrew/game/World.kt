@@ -14,7 +14,7 @@ import com.netrew.*
 import com.netrew.game.components.*
 import ktx.actors.onClick
 
-class World(val mediator: GameMediator, val engine: PooledEngine) {
+class World(val mediator: Mediator, val engine: PooledEngine) {
     lateinit var chelTexture: Texture
     lateinit var tiledMap: TiledMap
     lateinit var tileTexture: Texture
@@ -110,8 +110,9 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
             setOrigin(Align.center)
             onClick {
                 Globals.clickedCharacter = sprite
-                mediator.addText("${name.name}: ${transform.pos.x}; ${transform.pos.y}")
+                mediator.console().log("${name.name}: ${transform.pos.x}; ${transform.pos.y}")
                 transform.pos.set(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
+                ShockWave.instance?.start(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
             }
             onHover {
                 mediator.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
@@ -120,8 +121,9 @@ class World(val mediator: GameMediator, val engine: PooledEngine) {
                 mediator.hidePopupMenu()
             }
         }
+        mediator.stage().addActor(ShockWave.instance)
+        ShockWave.instance?.addActor(sprite.image)
         entity.add(sprite)
-        mediator.stage().addActor(Mappers.sprite.get(entity).image)
 
         val nameLabel = engine.createComponent(LabelComponent::class.java)
         nameLabel.label.setText(nameAssigner.getUnassignedName())
