@@ -16,7 +16,6 @@ import ktx.scene2d.scrollPane
 
 class MainMenu(private val main: Main, mediator: Mediator) : Screen {
     private val stage = mediator.uiStage()
-    private val skin = mediator.skin()
     lateinit var debugLabel: Label
     lateinit var scroll: ScrollPane
     lateinit var popupMenu: PopupMenu

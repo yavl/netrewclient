@@ -20,6 +20,7 @@ import com.netrew.ui.MainMenu
 import com.strongjoshua.console.GUIConsole
 
 object Globals {
+    val version = "0.0.1"
     val assets = AssetManager()
     lateinit var client: GameClient
     lateinit var stage: Stage

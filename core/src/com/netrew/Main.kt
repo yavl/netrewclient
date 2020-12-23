@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.maps.tiled.TiledMap
@@ -24,6 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.netrew.Globals.uiStage
@@ -69,7 +71,7 @@ class Main : Game() {
         font = assets.get<BitmapFont>("fonts/ubuntu-16.fnt")
         font.region.texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
-        Globals.skin = assets.get("DefaultSkin/uiskin.json")
+        Globals.skin = assets.get("skins/uiskin.json")
         Globals.defaultFont = generateFont(24)
         Globals.chatFont = generateFont(20)
         Scene2DSkin.defaultSkin = Globals.skin
@@ -115,7 +117,14 @@ class Main : Game() {
         mediator.createConsole()
         val console = mediator.console()
         console.setCommandExecutor(ConsoleCommandExecutor(mediator))
-        console.setTitle("Console")
+        console.setTitle("")
+        console.enableSubmitButton(true)
+        console.window.isMovable = false
+        val pixmapa = Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmapa.setColor(Color(0f, 0f, 0f, 0.6f));
+        pixmapa.fill();
+        val drawableBg = TextureRegionDrawable(TextureRegion(Texture(pixmapa)));
+        console.window.setBackground(drawableBg)
         console.setSizePercent(100f, 50f)
         console.isVisible = false
     }
@@ -169,7 +178,7 @@ class Main : Game() {
         assets = mediator.assets()
         assets.load("circle.png", Texture::class.java)
         assets.load("fonts/ubuntu-16.fnt", BitmapFont::class.java)
-        assets.load("DefaultSkin/uiskin.json", Skin::class.java)
+        assets.load("skins/uiskin.json", Skin::class.java)
         assets.load("languages/bundle", I18NBundle::class.java)
         assets.setLoader(TiledMap::class.java, TmxMapLoader(InternalFileHandleResolver()))
         assets.load("tilemap/untitled.tmx", TiledMap::class.java)

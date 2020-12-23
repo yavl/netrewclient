@@ -85,4 +85,8 @@ class Mediator {
     fun world(): World {
         return Globals.world
     }
+
+    fun version(): String {
+        return Globals.version
+    }
 }

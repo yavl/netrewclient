@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 class ConsoleCommandExecutor(private val mediator: Mediator) : CommandExecutor() {
     @ConsoleDoc(description = "Shows time in system time zone.")
     fun time() {
-        console.log(DateTimeFormatter.ofPattern("[HH:mm:ss]").withZone(ZoneId.systemDefault()).format(Instant.now()).toString())
+        console.log("Current time: " + DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.systemDefault()).format(Instant.now()).toString())
     }
 
     @ConsoleDoc(description = "Set camera position (x, y).")
@@ -27,5 +27,10 @@ class ConsoleCommandExecutor(private val mediator: Mediator) : CommandExecutor()
     fun debug(enabled: Boolean) {
         mediator.stage().isDebugAll = enabled
         mediator.uiStage().isDebugAll = enabled
+    }
+
+    @ConsoleDoc(description = "Show version info.")
+    fun version() {
+        console.log(mediator.version())
     }
 }
