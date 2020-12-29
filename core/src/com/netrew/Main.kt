@@ -89,14 +89,6 @@ class Main : Game() {
         cam.position.set(x, y, 0f)
         cam.zoom = zoom
 
-        engine.addSystem(MovementSystem())
-        engine.addSystem(TilemapRenderingSystem(mediator))
-        engine.addSystem(StageRenderingSystem(stage, 0))
-        engine.addSystem(SpriteRenderingSystem())
-        engine.addSystem(NameLabelRenderingSystem())
-        engine.addEntityListener(Family.all(TilemapComponent::class.java).get(), TilemapEntityListener())
-        world.create()
-
         mediator.createConsole()
         val console = mediator.console()
         console.setCommandExecutor(ConsoleCommandExecutor(mediator))
@@ -111,18 +103,25 @@ class Main : Game() {
         console.setSizePercent(100f, 50f)
         console.isVisible = false
 
+        engine.addSystem(MovementSystem())
+        engine.addSystem(TilemapRenderingSystem(mediator))
+        engine.addSystem(StageRenderingSystem(stage, 0))
+        engine.addSystem(SpriteRenderingSystem())
+        engine.addSystem(NameLabelRenderingSystem())
+        engine.addEntityListener(Family.all(TilemapComponent::class.java).get(), TilemapEntityListener())
+        world.create()
     }
 
     override fun render() {
-        Gdx.gl.glClearColor(0f, 0.4f, 0.2f, 1f)
+        Gdx.gl.glClearColor(68 / 255f, 121 / 255f, 163f / 255f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         cam.update()
         batch.projectionMatrix = cam.combined
 
         val dt = Gdx.graphics.deltaTime
-        inputManager.handleInput(dt)
         engine.update(dt)
+        inputManager.handleInput(dt)
         super.render()
 
         mediator.console().draw()
@@ -150,6 +149,7 @@ class Main : Game() {
         assets.load("fonts/ubuntu-16.fnt", BitmapFont::class.java)
         assets.load("skins/uiskin.json", Skin::class.java)
         assets.load("languages/bundle", I18NBundle::class.java)
+        assets.load("tilemap/heightmap.png", Texture::class.java)
         assets.setLoader(TiledMap::class.java, TmxMapLoader(InternalFileHandleResolver()))
         assets.load("tilemap/untitled.tmx", TiledMap::class.java)
         assets.finishLoading()

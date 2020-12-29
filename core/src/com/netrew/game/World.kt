@@ -11,15 +11,18 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.netrew.*
 import com.netrew.game.components.*
 import com.netrew.game.pathfinding.*
 import ktx.actors.onClick
 
+
 class World(val mediator: Mediator, val engine: PooledEngine) {
     lateinit var chelTexture: Texture
     lateinit var tiledMap: TiledMap
+    lateinit var tiledMapPixmap: Pixmap
     lateinit var tileTexture: Texture
     lateinit var worldMap: FlatTiledGraph
 
@@ -27,9 +30,14 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         chelTexture = mediator.assets().get<Texture>("circle.png")
         chelTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
         tiledMap = mediator.assets().get<TiledMap>("tilemap/untitled.tmx")
+        val heightmapTexture = mediator.assets().get<Texture>("tilemap/heightmap.png")
+        if (!heightmapTexture.textureData.isPrepared) {
+            heightmapTexture.textureData.prepare()
+        }
+        tiledMapPixmap = heightmapTexture.textureData.consumePixmap()
 
         createTerrain()
-        //createPixmapTerrain()
+        createPixmapTerrain()
 
         createCharacter(Vector2(5165f, 5150f))
         createCharacter(Vector2(5046f, 5371f))
@@ -56,23 +64,30 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
 
         engine.addEntity(entity)
 
-        val mapWidth = tiledMap.properties.get("width", Int::class.java)
-        val mapHeight = tiledMap.properties.get("height", Int::class.java)
         worldMap = FlatTiledGraph()
-        worldMap.init(mapWidth, mapHeight)
+        worldMap.init(tiledMapPixmap)
 
         val path =  TiledSmoothableGraphPath<FlatTiledNode>()
         val heuristic = TiledManhattanDistance<FlatTiledNode>()
         val pathfinder = IndexedAStarPathFinder<FlatTiledNode>(worldMap, true)
 
-        pathfinder.searchNodePath(FlatTiledNode(0, 0, 0, 0), FlatTiledNode(10, 10, 1, 0), heuristic, path)
-        // val pathSmoother = PathSmoother<FlatTiledNode, Vector2>(TiledRaycastCollisionDetector<FlatTiledNode>(worldMap))
-        println()
+        val startNode = worldMap.getNode(0)
+        val endNode = worldMap.getNode(414)
+        pathfinder.searchNodePath(startNode, endNode, heuristic, path)
+        val pathSmoother = PathSmoother<FlatTiledNode, Vector2>(TiledRaycastCollisionDetector<FlatTiledNode?>(worldMap))
+        val num = pathSmoother.smoothPath(path)
+
+        if (pathfinder.metrics != null) {
+            mediator.console().log("----------------- Indexed A* Path Finder Metrics -----------------")
+            mediator.console().log("Visited nodes................... = " + pathfinder.metrics.visitedNodes)
+            mediator.console().log("Open list additions............. = " + pathfinder.metrics.openListAdditions)
+            mediator.console().log("Open list peak.................. = " + pathfinder.metrics.openListPeak)
+        }
     }
 
     fun createPixmapTerrain() {
-        val pixmap = Pixmap(64, 64, Pixmap.Format.RGBA8888)
-        pixmap.setColor(Color.rgba8888(0f, 39f / 100f, 65f / 100f, 0.6f))
+        val pixmap = Pixmap(100, 100, Pixmap.Format.RGBA8888)
+        pixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0f))
         pixmap.fill()
         pixmap.setColor(Color.BLACK)
         pixmap.drawPixel(32, 32)
@@ -80,7 +95,8 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
 
         val entity = engine.createEntity()
         val transform = engine.createComponent(TransformComponent::class.java)
-        transform.scale.set(256f, 256f)
+        transform.pos.set(pixmap.width / 2f, pixmap.height / 2f)
+        transform.scale.set(128f, 128f)
         entity.add(transform)
 
         val sprite = engine.createComponent(SpriteComponent::class.java)
@@ -89,10 +105,12 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
             setScale(transform.scale.x, transform.scale.y)
             onClick {
                 pixmap.setColor(Color.RED)
-                pixmap.drawPixel(25, 25)
+                pixmap.drawPixel(33, 32)
                 tileTexture = Texture(pixmap)
-                sprite.image = Image(tileTexture)
-                // work in progress
+                sprite.image.drawable = TextureRegionDrawable(tileTexture)
+            }
+            onRightClick {
+                TODO()
             }
         }
         entity.add(sprite)
@@ -145,10 +163,15 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         entity.add(nameLabel)
         val group = Group()
         group.isTransform = true
+        group.addActor(sprite.image)
         group.addActor(nameLabel.label)
         mediator.stage().addActor(group)
 
         engine.addEntity(entity)
         Mappers.entityBySpriteComponent.put(sprite, entity)
+    }
+
+    private fun asd() {
+
     }
 }

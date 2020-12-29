@@ -16,6 +16,7 @@
 package com.netrew.game.pathfinding
 
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph
+import com.badlogic.gdx.graphics.Pixmap
 
 /** Graph interface representing a generic tiled map.
  *
@@ -24,7 +25,7 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph
  * @author davebaol
 </N> */
 interface TiledGraph<N : TiledNode<N>?> : IndexedGraph<N> {
-    fun init(sizeX: Int, sizeY: Int)
+    fun init(pixmap: Pixmap)
     fun getNode(x: Int, y: Int): N
     fun getNode(index: Int): N
 }

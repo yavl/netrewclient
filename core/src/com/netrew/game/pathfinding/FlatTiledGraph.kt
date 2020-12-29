@@ -16,8 +16,11 @@
 package com.netrew.game.pathfinding
 
 import com.badlogic.gdx.ai.pfa.Connection
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.utils.Array
 import com.netrew.game.pathfinding.TiledNode.Companion.TILE_FLOOR
+import com.netrew.game.pathfinding.TiledNode.Companion.TILE_WATER
 
 /** A random generated graph representing a flat tiled map.
  *
@@ -32,16 +35,19 @@ class FlatTiledGraph : TiledGraph<FlatTiledNode?> {
         var sizeY = 0
     }
 
-    override fun init(sizeX: Int, sizeY: Int) {
-        FlatTiledGraph.sizeX = sizeX
-        FlatTiledGraph.sizeY = sizeY
+    override fun init(pixmap: Pixmap) {
+        sizeX = pixmap.width
+        sizeY = pixmap.height
 
-        val map = Array(sizeX) {
-            Array(sizeY) { 1 }
-        }
         for (x in 0 until sizeX) {
             for (y in 0 until sizeY) {
-                nodes.add(FlatTiledNode(x, y, map[x][y], 4));
+                val color = Color(pixmap.getPixel(x, y))
+                var type = TILE_WATER
+                when (color) {
+                    Color.BLACK -> type = TILE_WATER
+                    Color.WHITE -> type = TILE_FLOOR
+                }
+                nodes.add(FlatTiledNode(x, y, type, 4));
             }
         }
 

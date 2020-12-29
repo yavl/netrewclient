@@ -1,6 +1,7 @@
 package com.netrew
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -62,6 +63,14 @@ inline fun <T : Actor> T.onHover(crossinline listener: T.() -> Unit): ClickListe
 inline fun <T : Actor> T.onHoverEnd(crossinline listener: T.() -> Unit): ClickListener {
     val clickListener = object : ClickListener() {
         override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor?) = listener()
+    }
+    addListener(clickListener)
+    return clickListener
+}
+
+inline fun <T : Actor> T.onRightClick(crossinline listener: T.() -> Unit): ClickListener {
+    val clickListener = object : ClickListener(Input.Buttons.RIGHT) {
+        override fun clicked(event: InputEvent, x: Float, y: Float) = listener()
     }
     addListener(clickListener)
     return clickListener

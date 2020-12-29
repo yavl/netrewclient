@@ -34,8 +34,8 @@ abstract class TiledNode<N : TiledNode<N>?>(
     abstract val index: Int
 
     companion object {
-        /** A constant representing an empty tile  */
-        const val TILE_EMPTY = 0
+        /** A constant representing a water tile  */
+        const val TILE_WATER = 0
 
         /** A constant representing a walkable tile  */
         const val TILE_FLOOR = 1
