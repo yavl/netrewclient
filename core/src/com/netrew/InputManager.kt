@@ -11,10 +11,11 @@ import com.netrew.game.Mappers
 import com.netrew.game.components.TransformComponent
 import java.io.StringWriter
 
-class InputManager(private val main: Main, private val cam: OrthographicCamera) : InputProcessor {
+class InputManager(mediator: Mediator) : InputProcessor {
     private val camSpeed = 500.0f
     private val dragOld = Vector2()
     private val dragNew = Vector2()
+    private val cam = mediator.camera()
 
     override fun keyDown(keycode: Int): Boolean {
         return false

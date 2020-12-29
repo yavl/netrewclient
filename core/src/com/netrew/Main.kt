@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver
@@ -16,15 +15,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
-import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
-import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.viewport.ScreenViewport
@@ -35,12 +29,7 @@ import com.netrew.game.World
 import com.netrew.game.components.TilemapComponent
 import com.netrew.game.systems.*
 import com.netrew.ui.MainMenu
-import com.strongjoshua.console.CommandExecutor
-import com.strongjoshua.console.annotation.ConsoleDoc
 import ktx.scene2d.Scene2DSkin
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 
 class Main : Game() {
@@ -56,7 +45,6 @@ class Main : Game() {
     val mediator = Mediator()
     val world = World(mediator, engine)
     val cam = mediator.camera()
-    lateinit var fbo: FrameBuffer
 
     override fun create() {
         initAssets()
@@ -81,18 +69,18 @@ class Main : Game() {
         Globals.skin.add("white", Texture(pixmap))
 
         menu = MainMenu(this, mediator)
-        //hud = GameHud(this, mediator)
         setScreen(menu)
-
-        inputManager = InputManager(this, cam)
-        inputs.addProcessor(inputManager)
-        inputs.addProcessor(uiStage)
-        Gdx.input.inputProcessor = inputs
 
         val viewp = ScreenViewport(cam)
         mediator.createStage(viewp, batch)
         val stage = mediator.stage()
         stage.isDebugAll = true
+
+        inputManager = InputManager(mediator)
+        inputs.addProcessor(inputManager)
+        inputs.addProcessor(uiStage)
+        inputs.addProcessor(stage)
+        Gdx.input.inputProcessor = inputs
 
         val prefs = Gdx.app.getPreferences("NetrewPreferences")
         val x = prefs.getFloat("cameraPosX", 0f)
@@ -100,8 +88,6 @@ class Main : Game() {
         val zoom = prefs.getFloat("cameraZoom", 1f)
         cam.position.set(x, y, 0f)
         cam.zoom = zoom
-
-        inputs.addProcessor(stage)
 
         engine.addSystem(MovementSystem())
         engine.addSystem(TilemapRenderingSystem(mediator))
@@ -111,22 +97,20 @@ class Main : Game() {
         engine.addEntityListener(Family.all(TilemapComponent::class.java).get(), TilemapEntityListener())
         world.create()
 
-        fbo = FrameBuffer(Pixmap.Format.RGBA8888, 1600, 1200, false, false)
-        renderFbo()
-
         mediator.createConsole()
         val console = mediator.console()
         console.setCommandExecutor(ConsoleCommandExecutor(mediator))
         console.setTitle("")
         console.enableSubmitButton(true)
         console.window.isMovable = false
-        val pixmapa = Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmapa.setColor(Color(0f, 0f, 0f, 0.6f));
-        pixmapa.fill();
-        val drawableBg = TextureRegionDrawable(TextureRegion(Texture(pixmapa)));
-        console.window.setBackground(drawableBg)
+        val consoleBgPixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        consoleBgPixmap.setColor(Color(0f, 0f, 0f, 0.6f));
+        consoleBgPixmap.fill();
+        val consoleBg = TextureRegionDrawable(TextureRegion(Texture(consoleBgPixmap)));
+        console.window.setBackground(consoleBg)
         console.setSizePercent(100f, 50f)
         console.isVisible = false
+
     }
 
     override fun render() {
@@ -137,25 +121,11 @@ class Main : Game() {
         batch.projectionMatrix = cam.combined
 
         val dt = Gdx.graphics.deltaTime
-        engine.update(dt)
         inputManager.handleInput(dt)
-
+        engine.update(dt)
         super.render()
-        mediator.console().draw()
-        renderFbo()
-        batch.begin()
-        batch.draw(fbo.colorBufferTexture, 0f, 0f, 2048f, 2048f)
-        batch.end()
-    }
 
-    fun renderFbo() {
-        fbo.begin()
-        batch.begin()
-        Gdx.gl.glClearColor(0f, 0.4f, 0.2f, 1f)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        batch.draw(assets.get<Texture>("circle.png"), 1024f, 1024f, 64f, 64f)
-        batch.end()
-        fbo.end()
+        mediator.console().draw()
     }
 
     override fun dispose() {
@@ -186,7 +156,7 @@ class Main : Game() {
     }
 
     private fun generateFont(size: Int): BitmapFont {
-        val generator = FreeTypeFontGenerator(Gdx.files.local("fonts/Ubuntu-Regular.ttf"))
+        val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-Regular.ttf"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
         parameter.size = size
         parameter.magFilter = Texture.TextureFilter.Linear

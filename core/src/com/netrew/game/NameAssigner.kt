@@ -8,7 +8,7 @@ class NameAssigner(path: String) {
     var assignedNames = mutableSetOf<String>()
 
     init {
-        val file = Gdx.files.local(path)
+        val file = Gdx.files.internal(path)
         val contents = file.readString()
         names = contents.split('\n').toMutableSet()
     }

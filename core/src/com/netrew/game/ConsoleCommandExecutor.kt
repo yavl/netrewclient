@@ -1,6 +1,9 @@
 package com.netrew.game
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.math.Vector2
 import com.netrew.Mediator
+import com.netrew.toWorldPos
 import com.strongjoshua.console.CommandExecutor
 import com.strongjoshua.console.annotation.ConsoleDoc
 import java.time.Instant
@@ -32,5 +35,10 @@ class ConsoleCommandExecutor(private val mediator: Mediator) : CommandExecutor()
     @ConsoleDoc(description = "Show version info.")
     fun version() {
         console.log(mediator.version())
+    }
+
+    @ConsoleDoc(description = "Show cursor pos (x, y).")
+    fun cursor() {
+        console.log("${Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos()}")
     }
 }

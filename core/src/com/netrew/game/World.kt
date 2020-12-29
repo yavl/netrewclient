@@ -2,6 +2,8 @@ package com.netrew.game
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.ai.pfa.PathSmoother
+import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
@@ -12,12 +14,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.Align
 import com.netrew.*
 import com.netrew.game.components.*
+import com.netrew.game.pathfinding.*
 import ktx.actors.onClick
 
 class World(val mediator: Mediator, val engine: PooledEngine) {
     lateinit var chelTexture: Texture
     lateinit var tiledMap: TiledMap
     lateinit var tileTexture: Texture
+    lateinit var worldMap: FlatTiledGraph
 
     fun create() {
         chelTexture = mediator.assets().get<Texture>("circle.png")
@@ -51,6 +55,19 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         entity.add(tilemap)
 
         engine.addEntity(entity)
+
+        val mapWidth = tiledMap.properties.get("width", Int::class.java)
+        val mapHeight = tiledMap.properties.get("height", Int::class.java)
+        worldMap = FlatTiledGraph()
+        worldMap.init(mapWidth, mapHeight)
+
+        val path =  TiledSmoothableGraphPath<FlatTiledNode>()
+        val heuristic = TiledManhattanDistance<FlatTiledNode>()
+        val pathfinder = IndexedAStarPathFinder<FlatTiledNode>(worldMap, true)
+
+        pathfinder.searchNodePath(FlatTiledNode(0, 0, 0, 0), FlatTiledNode(10, 10, 1, 0), heuristic, path)
+        // val pathSmoother = PathSmoother<FlatTiledNode, Vector2>(TiledRaycastCollisionDetector<FlatTiledNode>(worldMap))
+        println()
     }
 
     fun createPixmapTerrain() {
@@ -112,7 +129,6 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
                 Globals.clickedCharacter = sprite
                 mediator.console().log("${name.name}: ${transform.pos.x}; ${transform.pos.y}")
                 transform.pos.set(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
-                ShockWave.instance?.start(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
             }
             onHover {
                 mediator.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
@@ -121,8 +137,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
                 mediator.hidePopupMenu()
             }
         }
-        mediator.stage().addActor(ShockWave.instance)
-        ShockWave.instance?.addActor(sprite.image)
+        mediator.stage().addActor(sprite.image)
         entity.add(sprite)
 
         val nameLabel = engine.createComponent(LabelComponent::class.java)
