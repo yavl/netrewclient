@@ -22,7 +22,8 @@ import ktx.math.*
 
 
 class World(val mediator: Mediator, val engine: PooledEngine) {
-    lateinit var chelTexture: Texture
+    lateinit var characterTexture: Texture
+    lateinit var treeTexture: Texture
     lateinit var tiledMap: TiledMap
     lateinit var tiledMapPixmap: Pixmap
     lateinit var tileTexture: Texture
@@ -33,8 +34,11 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
     lateinit var pathSmoother: PathSmoother<FlatTiledNode, Vector2>
 
     fun create() {
-        chelTexture = mediator.assets().get<Texture>("circle.png")
-        chelTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+        characterTexture = mediator.assets().get<Texture>("circle.png")
+        characterTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+        treeTexture = mediator.assets().get<Texture>("tree.png")
+        treeTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+
         tiledMap = mediator.assets().get<TiledMap>("tilemap/untitled.tmx")
         val heightmapTexture = mediator.assets().get<Texture>("tilemap/heightmap.png")
         if (!heightmapTexture.textureData.isPrepared) {
@@ -44,6 +48,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
 
         createTerrain()
         createPixmapTerrain()
+        createTree()
 
         createCharacter(Vector2(5165f, 5150f))
         createCharacter(Vector2(5046f, 5371f))
@@ -152,7 +157,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
 
         val size = 32
         val sprite = engine.createComponent(SpriteComponent::class.java)
-        sprite.image = Image(chelTexture)
+        sprite.image = Image(characterTexture)
         with(sprite.image) {
             setColor(color)
             setSize(size.toFloat(), size.toFloat())
@@ -184,6 +189,28 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
 
         engine.addEntity(entity)
         Mappers.entityBySpriteComponent.put(sprite, entity)
+    }
+
+    fun createTree() {
+        val entity = engine.createEntity()
+
+        val transform = engine.createComponent(TransformComponent::class.java)
+        with(transform) {
+            this.pos.set(pos)
+        }
+        entity.add(transform)
+
+        val sprite = engine.createComponent(SpriteComponent::class.java)
+        sprite.image = Image(treeTexture)
+        with(sprite.image) {
+            setColor(color)
+            setScale(transform.scale.x, transform.scale.y)
+            setOrigin(Align.center)
+        }
+        mediator.stage().addActor(sprite.image)
+        entity.add(sprite)
+
+        engine.addEntity(entity)
     }
 
     fun onPixmapRightClick() {
