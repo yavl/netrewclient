@@ -30,6 +30,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
     val path =  TiledSmoothableGraphPath<FlatTiledNode>()
     val heuristic = TiledManhattanDistance<FlatTiledNode>()
     lateinit var pathfinder: IndexedAStarPathFinder<FlatTiledNode>
+    lateinit var pathSmoother: PathSmoother<FlatTiledNode, Vector2>
 
     fun create() {
         chelTexture = mediator.assets().get<Texture>("circle.png")
@@ -88,7 +89,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         val endNode = worldMap.getNode(414)
         pathfinder = IndexedAStarPathFinder<FlatTiledNode>(worldMap, true)
         pathfinder.searchNodePath(startNode, endNode, heuristic, path)
-        val pathSmoother = PathSmoother<FlatTiledNode, Vector2>(TiledRaycastCollisionDetector<FlatTiledNode?>(worldMap))
+        pathSmoother = PathSmoother<FlatTiledNode, Vector2>(TiledRaycastCollisionDetector<FlatTiledNode?>(worldMap))
         val num = pathSmoother.smoothPath(path)
 
         if (pathfinder.metrics != null) {
@@ -124,16 +125,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
                 sprite.image.drawable = TextureRegionDrawable(tileTexture)
             }
             onRightClick {
-                val transformComponent = Mappers.transform.get(Globals.clickedCharacter)
-                val characterComponent = Mappers.character.get(Globals.clickedCharacter)
-                val velocityComponent = Mappers.velocity.get(Globals.clickedCharacter)
-                val startNode = worldMap.getNodeByPosition(Vector2(transformComponent.pos.x, transformComponent.pos.y), 32, 4f)
-                val endNode = worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), 32, 4f)
-                if (pathfinder.searchNodePath(startNode, endNode, heuristic, path)) {
-                    characterComponent.targetPosition = endNode.toWorldPos(32, 4f)
-                    characterComponent.hasTargetPosition = true
-                    velocityComponent.direction = (characterComponent.targetPosition - transformComponent.pos).nor()
-                }
+                onPixmapRightClick()
             }
         }
         entity.add(sprite)
@@ -192,5 +184,26 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
 
         engine.addEntity(entity)
         Mappers.entityBySpriteComponent.put(sprite, entity)
+    }
+
+    fun onPixmapRightClick() {
+        val transformComponent = Mappers.transform.get(Globals.clickedCharacter)
+        val characterComponent = Mappers.character.get(Globals.clickedCharacter)
+        val velocityComponent = Mappers.velocity.get(Globals.clickedCharacter)
+        val startNode = worldMap.getNodeByPosition(Vector2(transformComponent.pos.x, transformComponent.pos.y), 32, 4f)
+        val endNode = worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), 32, 4f)
+        characterComponent.targetPositions.clear()
+        path.clear()
+        if (pathfinder.searchNodePath(startNode, endNode, heuristic, path)) {
+            pathSmoother.smoothPath(path)
+            characterComponent.hasTargetPosition = true
+            characterComponent.targetPosition = path[0].toWorldPos(32, 4f)
+            velocityComponent.direction = (characterComponent.targetPosition - transformComponent.pos).nor()
+
+            for (each in path) {
+                characterComponent.targetPositions.add(each.toWorldPos(32, 4f))
+                mediator.console().log("${each.toWorldPos(32, 4f).x}, ${each.toWorldPos(32, 4f).y}")
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ import com.netrew.game.components.CharacterComponent
 import com.netrew.game.components.Mappers
 import com.netrew.game.components.TransformComponent
 import com.netrew.game.components.VelocityComponent
+import ktx.math.minus
 
 class MovementSystem : IteratingSystem(Family.all(TransformComponent::class.java, VelocityComponent::class.java, CharacterComponent::class.java).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
@@ -20,10 +21,20 @@ class MovementSystem : IteratingSystem(Family.all(TransformComponent::class.java
         if (character.hasTargetPosition) {
             velocity.speed = velocity.maxSpeed * Globals.timeScale * deltaTime
         }
+
         // stop character when target is reached
         if (character.hasTargetPosition && character.targetPosition.dst(transform.pos) <= velocity.speed) {
-            character.hasTargetPosition = false
-            velocity.speed = 0f
+            if (character.targetPositions.size > 0) {
+                character.targetPosition = character.targetPositions[0]
+                character.targetPosition.x += 16f * 4f
+                character.targetPosition.y += 16f * 4f
+                velocity.direction = (character.targetPosition - transform.pos).nor()
+                character.targetPositions.removeIndex(0)
+            }
+            else {
+                character.hasTargetPosition = false
+                velocity.speed = 0f
+            }
         }
     }
 }
