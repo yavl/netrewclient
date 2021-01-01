@@ -55,6 +55,7 @@ project(":core") {
         compile "com.strongjoshua:libgdx-inGameConsole:1.0.0"
         compile group: 'io.github.libktx', name: 'ktx-actors', version: '1.9.11-b2'
         compile group: 'io.github.libktx', name: 'ktx-scene2d', version: '1.9.10-b6'
+        compile group: 'io.github.libktx', name: 'ktx-math', version: '1.9.12-b1'
         compile group: 'com.esotericsoftware', name: 'kryonet', version: '2.22.0-RC1'
         api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
     }

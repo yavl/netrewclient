@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
@@ -13,8 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.netrew.Globals
-import com.netrew.Globals.skin
-import com.netrew.game.Mappers
+import com.netrew.game.components.Mappers
 import com.rafaskoberg.gdx.typinglabel.TypingConfig
 import com.rafaskoberg.gdx.typinglabel.TypingLabel
 import ktx.actors.alpha
@@ -77,7 +75,7 @@ class PopupMenu() : Group() {
     }
 
     fun update(entity: Entity) {
-        val characterName = Mappers.name.get(entity).name
+        val characterName = Mappers.character.get(entity).name
         val characterAge = 0
 
         val nameLabel = findActor<Label>("nameLabel")

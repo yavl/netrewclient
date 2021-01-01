@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.utils.Align
 import com.netrew.Mediator
@@ -67,6 +68,7 @@ class MainMenu(private val main: Main, mediator: Mediator) : Screen {
         scroll.setPosition(0f, Gdx.graphics.height.toFloat() * 0.5f - scroll.height)
         scroll.setSize(scrollWidth, scrollHeight)
         scroll.style.background = null
+        scroll.touchable = Touchable.disabled
         stage.addActor(scroll)
     }
 

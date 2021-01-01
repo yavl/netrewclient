@@ -3,6 +3,7 @@ package com.netrew.game
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
+import com.netrew.game.components.Mappers
 import kotlin.math.max
 
 class TilemapEntityListener() : EntityListener {

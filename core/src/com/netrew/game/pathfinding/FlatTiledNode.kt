@@ -16,6 +16,7 @@
 package com.netrew.game.pathfinding
 
 import com.badlogic.gdx.ai.pfa.Connection
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
 
 /** A node for a [FlatTiledGraph].
@@ -25,4 +26,8 @@ import com.badlogic.gdx.utils.Array
 class FlatTiledNode(x: Int, y: Int, type: Int, connectionCapacity: Int) : TiledNode<FlatTiledNode?>(x, y, type, Array<Connection<FlatTiledNode?>>(connectionCapacity)) {
     override val index: Int
         get() = x * FlatTiledGraph.sizeY + y
+
+    fun toWorldPos(tileSize: Int, scale: Float): Vector2 {
+        return Vector2(tileSize * x * scale, tileSize * y * scale)
+    }
 }

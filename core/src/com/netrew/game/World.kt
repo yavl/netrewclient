@@ -11,12 +11,14 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.netrew.*
 import com.netrew.game.components.*
 import com.netrew.game.pathfinding.*
 import ktx.actors.onClick
+import ktx.math.*
 
 
 class World(val mediator: Mediator, val engine: PooledEngine) {
@@ -25,6 +27,9 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
     lateinit var tiledMapPixmap: Pixmap
     lateinit var tileTexture: Texture
     lateinit var worldMap: FlatTiledGraph
+    val path =  TiledSmoothableGraphPath<FlatTiledNode>()
+    val heuristic = TiledManhattanDistance<FlatTiledNode>()
+    lateinit var pathfinder: IndexedAStarPathFinder<FlatTiledNode>
 
     fun create() {
         chelTexture = mediator.assets().get<Texture>("circle.png")
@@ -67,12 +72,21 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         worldMap = FlatTiledGraph()
         worldMap.init(tiledMapPixmap)
 
-        val path =  TiledSmoothableGraphPath<FlatTiledNode>()
-        val heuristic = TiledManhattanDistance<FlatTiledNode>()
-        val pathfinder = IndexedAStarPathFinder<FlatTiledNode>(worldMap, true)
+        /// create TILE TYPES labels
+        run {
+            for (x in 0 until FlatTiledGraph.sizeX) {
+                for (y in 0 until FlatTiledGraph.sizeY) {
+                    val label = Label(worldMap.getNode(x, y).type.toString(), mediator.skin())
+                    label.setPosition(x * 32f * 4f, y * 32f * 4f)
+                    if (worldMap.getNode(x, y).type == 1)
+                        mediator.stage().addActor(label)
+                }
+            }
+        }
 
         val startNode = worldMap.getNode(0)
         val endNode = worldMap.getNode(414)
+        pathfinder = IndexedAStarPathFinder<FlatTiledNode>(worldMap, true)
         pathfinder.searchNodePath(startNode, endNode, heuristic, path)
         val pathSmoother = PathSmoother<FlatTiledNode, Vector2>(TiledRaycastCollisionDetector<FlatTiledNode?>(worldMap))
         val num = pathSmoother.smoothPath(path)
@@ -110,7 +124,16 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
                 sprite.image.drawable = TextureRegionDrawable(tileTexture)
             }
             onRightClick {
-                TODO()
+                val transformComponent = Mappers.transform.get(Globals.clickedCharacter)
+                val characterComponent = Mappers.character.get(Globals.clickedCharacter)
+                val velocityComponent = Mappers.velocity.get(Globals.clickedCharacter)
+                val startNode = worldMap.getNodeByPosition(Vector2(transformComponent.pos.x, transformComponent.pos.y), 32, 4f)
+                val endNode = worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), 32, 4f)
+                if (pathfinder.searchNodePath(startNode, endNode, heuristic, path)) {
+                    characterComponent.targetPosition = endNode.toWorldPos(32, 4f)
+                    characterComponent.hasTargetPosition = true
+                    velocityComponent.direction = (characterComponent.targetPosition - transformComponent.pos).nor()
+                }
             }
         }
         entity.add(sprite)
@@ -122,9 +145,9 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         val entity = engine.createEntity()
 
         val nameAssigner = NameAssigner("names.txt")
-        val name = engine.createComponent(NameComponent::class.java)
-        name.name = nameAssigner.getUnassignedName()
-        entity.add(name)
+        val characterComponent = engine.createComponent(CharacterComponent::class.java)
+        characterComponent.name = nameAssigner.getUnassignedName()
+        entity.add(characterComponent)
 
         val transform = engine.createComponent(TransformComponent::class.java)
         with(transform) {
@@ -144,8 +167,8 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
             setScale(transform.scale.x, transform.scale.y)
             setOrigin(Align.center)
             onClick {
-                Globals.clickedCharacter = sprite
-                mediator.console().log("${name.name}: ${transform.pos.x}; ${transform.pos.y}")
+                Globals.clickedCharacter = entity
+                mediator.console().log("${characterComponent.name}: ${transform.pos.x}; ${transform.pos.y}")
                 transform.pos.set(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
             }
             onHover {
@@ -169,9 +192,5 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
 
         engine.addEntity(entity)
         Mappers.entityBySpriteComponent.put(sprite, entity)
-    }
-
-    private fun asd() {
-
     }
 }

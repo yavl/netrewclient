@@ -1,10 +1,9 @@
-package com.netrew.game
+package com.netrew.game.components
 
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.utils.ObjectMap
-import com.netrew.game.components.*
 
 object Mappers {
     val transform = ComponentMapper.getFor(TransformComponent::class.java)
@@ -13,6 +12,6 @@ object Mappers {
     val tilemap = ComponentMapper.getFor(TilemapComponent::class.java)
     val tilemapRenderers = ObjectMap<Entity, OrthogonalTiledMapRenderer>()
     val label = ComponentMapper.getFor(LabelComponent::class.java)
-    val name = ComponentMapper.getFor(NameComponent::class.java)
+    val character = ComponentMapper.getFor(CharacterComponent::class.java)
     val entityBySpriteComponent = ObjectMap<SpriteComponent, Entity>()
 }

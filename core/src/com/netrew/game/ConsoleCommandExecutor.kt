@@ -2,6 +2,7 @@ package com.netrew.game
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
+import com.netrew.Globals
 import com.netrew.Mediator
 import com.netrew.toWorldPos
 import com.strongjoshua.console.CommandExecutor
@@ -14,6 +15,17 @@ class ConsoleCommandExecutor(private val mediator: Mediator) : CommandExecutor()
     @ConsoleDoc(description = "Shows time in system time zone.")
     fun time() {
         console.log("Current time: " + DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.systemDefault()).format(Instant.now()).toString())
+    }
+
+    @ConsoleDoc(description = "Show game timescale.")
+    fun timescale() {
+        console.log("Timescale is set to ${Globals.timeScale}x")
+    }
+
+    @ConsoleDoc(description = "Set game timescale.")
+    fun timescale(scale: Float) {
+        mediator.timescale(scale)
+        console.log("Timescale is set to ${scale}x")
     }
 
     @ConsoleDoc(description = "Set camera position (x, y).")

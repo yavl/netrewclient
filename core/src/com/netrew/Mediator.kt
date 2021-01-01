@@ -87,6 +87,10 @@ class Mediator {
     }
 
     fun version(): String {
-        return Globals.version
+        return Globals.VERSION
+    }
+
+    fun timescale(scale: Float) {
+        Globals.timeScale = scale
     }
 }
