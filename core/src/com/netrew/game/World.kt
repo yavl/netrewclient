@@ -214,6 +214,8 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
     }
 
     fun onPixmapRightClick() {
+        if (Globals.clickedCharacter == null)
+            return
         val transformComponent = Mappers.transform.get(Globals.clickedCharacter)
         val characterComponent = Mappers.character.get(Globals.clickedCharacter)
         val velocityComponent = Mappers.velocity.get(Globals.clickedCharacter)
@@ -227,9 +229,11 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
             characterComponent.targetPosition = path[0].toWorldPos(32, 4f)
             velocityComponent.direction = (characterComponent.targetPosition - transformComponent.pos).nor()
 
-            for (each in path) {
-                characterComponent.targetPositions.add(each.toWorldPos(32, 4f))
-                mediator.console().log("${each.toWorldPos(32, 4f).x}, ${each.toWorldPos(32, 4f).y}")
+            path.forEach {
+                val targetPos = it.toWorldPos(32, 4f)
+                targetPos.set(targetPos.x + 16f * 4f, targetPos.y + 16 * 4f)
+                characterComponent.targetPositions.add(targetPos)
+                mediator.console().log("${it.toWorldPos(32, 4f).x}, ${it.toWorldPos(32, 4f).y}")
             }
         }
     }

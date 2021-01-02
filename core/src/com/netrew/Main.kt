@@ -37,7 +37,6 @@ class Main : Game() {
     lateinit var inputManager: InputManager
     lateinit var menu: MainMenu
     private val inputs = InputMultiplexer()
-    lateinit private var font: BitmapFont
     //
     lateinit internal var assets: AssetManager
 
@@ -55,10 +54,6 @@ class Main : Game() {
         cam.position.set(cam.viewportWidth / 2, cam.viewportHeight / 2, 0f)
 
         Globals.bundle = assets.get<I18NBundle>("languages/bundle")
-
-        font = assets.get<BitmapFont>("fonts/ubuntu-16.fnt")
-        font.region.texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-
         Globals.skin = assets.get("skins/uiskin.json")
         Globals.defaultFont = generateFont(24)
         Globals.chatFont = generateFont(20)
@@ -130,7 +125,6 @@ class Main : Game() {
     override fun dispose() {
         batch.dispose()
         assets.dispose()
-        font.dispose()
         uiStage.dispose()
         mediator.dispose()
     }
@@ -140,6 +134,7 @@ class Main : Game() {
         cam.viewportHeight = height.toFloat()
         uiStage.viewport.update(width, height, true)
         mediator.stage().viewport.update(width, height)
+        mediator.console().window.stage.viewport.update(width, height)
         menu.resize(width, height)
     }
 
@@ -147,7 +142,6 @@ class Main : Game() {
         assets = mediator.assets()
         assets.load("circle.png", Texture::class.java)
         assets.load("tree.png", Texture::class.java)
-        assets.load("fonts/ubuntu-16.fnt", BitmapFont::class.java)
         assets.load("skins/uiskin.json", Skin::class.java)
         assets.load("languages/bundle", I18NBundle::class.java)
         assets.load("tilemap/heightmap.png", Texture::class.java)
@@ -163,5 +157,13 @@ class Main : Game() {
         parameter.magFilter = Texture.TextureFilter.Linear
         parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя"
         return generator.generateFont(parameter)
+    }
+
+    override fun pause() {
+        mediator.timescale(0f)
+    }
+
+    override fun resume() {
+        mediator.timescale(Globals.DEFAULT_TIMESCALE)
     }
 }

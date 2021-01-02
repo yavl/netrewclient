@@ -22,6 +22,7 @@ import com.strongjoshua.console.GUIConsole
 object Globals {
     const val VERSION = "0.0.1"
     var timeScale = 10f
+    const val DEFAULT_TIMESCALE = 10f
 
     val assets = AssetManager()
     lateinit var client: GameClient

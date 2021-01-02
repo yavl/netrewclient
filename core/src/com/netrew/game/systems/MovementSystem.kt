@@ -26,8 +26,6 @@ class MovementSystem : IteratingSystem(Family.all(TransformComponent::class.java
         if (character.hasTargetPosition && character.targetPosition.dst(transform.pos) <= velocity.speed) {
             if (character.targetPositions.size > 0) {
                 character.targetPosition = character.targetPositions[0]
-                character.targetPosition.x += 16f * 4f
-                character.targetPosition.y += 16f * 4f
                 velocity.direction = (character.targetPosition - transform.pos).nor()
                 character.targetPositions.removeIndex(0)
             }
