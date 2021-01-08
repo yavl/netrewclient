@@ -61,7 +61,7 @@ class PopupMenu() : Group() {
         table.add(verticalGroup)
     }
 
-    fun show(entity: Entity) {
+    fun show() {
         if (hasActions())
             clearActions()
         addAction(Actions.fadeIn(0.1f))

@@ -23,8 +23,11 @@ import com.badlogic.gdx.ai.pfa.DefaultConnection
  */
 class FlatTiledConnection(var worldMap: FlatTiledGraph, fromNode: FlatTiledNode?, toNode: FlatTiledNode?) : DefaultConnection<FlatTiledNode>(fromNode, toNode) {
     override fun getCost(): Float {
-        if (worldMap.diagonal) return 1f
-        return if (getToNode()!!.x != worldMap.startNode?.x && getToNode()!!.y != worldMap.startNode?.y) NON_DIAGONAL_COST else 1f
+        if (worldMap.diagonal)
+            return 1f
+        if (getToNode().x != worldMap.startNode?.x && getToNode().y != worldMap.startNode?.y)
+            return NON_DIAGONAL_COST
+        return 1f
     }
 
     companion object {

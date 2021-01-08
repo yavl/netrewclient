@@ -85,7 +85,7 @@ class MainMenu(private val main: Main, mediator: Mediator) : Screen {
         else {
             popupMenu.isVisible = true
         }
-        popupMenu.show(entity)
+        popupMenu.show()
         popupMenu.update(entity)
         popupMenu.setPosition(mouseX, Gdx.graphics.height.toFloat() - mouseY)
     }

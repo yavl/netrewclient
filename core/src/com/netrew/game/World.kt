@@ -39,8 +39,8 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         treeTexture = mediator.assets().get<Texture>("tree.png")
         treeTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
-        tiledMap = mediator.assets().get<TiledMap>("tilemap/untitled.tmx")
-        val heightmapTexture = mediator.assets().get<Texture>("tilemap/heightmap.png")
+        tiledMap = mediator.assets().get<TiledMap>("maps/europe/tilemap.tmx")
+        val heightmapTexture = mediator.assets().get<Texture>("maps/europe/heightmap.png")
         if (!heightmapTexture.textureData.isPrepared) {
             heightmapTexture.textureData.prepare()
         }
@@ -48,25 +48,27 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
 
         createTerrain()
         createPixmapTerrain()
-        createTree()
+        createCharacter(Vector2(766f, 3993f))
+        createCharacter(Vector2(786f, 4013f))
 
-        createCharacter(Vector2(5165f, 5150f))
-        createCharacter(Vector2(5046f, 5371f))
-        createCharacter(Vector2(5173f, 5379f))
-        createCharacter(Vector2(5134f, 5269f))
+        /*
+        createCharacter(Vector2(1165f, 1150f))
+        createCharacter(Vector2(1046f, 1371f))
+        createCharacter(Vector2(1173f, 1379f))
+        createCharacter(Vector2(1134f, 1269f))
 
-        createCharacter(Vector2(6417f, 6790f))
-        createCharacter(Vector2(4871f, 4794f))
-        createCharacter(Vector2(4842f, 4970f))
-        createCharacter(Vector2(4715f, 4886f))
-        createCharacter(Vector2(4824f, 4904f))
+        createCharacter(Vector2(2417f, 2790f))
+        createCharacter(Vector2(1871f, 1794f))
+        createCharacter(Vector2(1842f, 1970f))
+        createCharacter(Vector2(1715f, 1886f))
+        createCharacter(Vector2(1824f, 1904f))*/
     }
 
     fun createTerrain() {
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
-        transform.scale.set(4f, 4f)
+        transform.scale.set(1f, 1f)
         entity.add(transform)
 
         val tilemap = engine.createComponent(TilemapComponent::class.java)
@@ -79,13 +81,23 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         worldMap.init(tiledMapPixmap)
 
         /// create TILE TYPES labels
+        /*
         run {
             for (x in 0 until FlatTiledGraph.sizeX) {
                 for (y in 0 until FlatTiledGraph.sizeY) {
                     val label = Label(worldMap.getNode(x, y).type.toString(), mediator.skin())
-                    label.setPosition(x * 32f * 4f, y * 32f * 4f)
+                    label.setPosition(x * 32f * 2f, y * 32f * 2f)
                     if (worldMap.getNode(x, y).type == 1)
                         mediator.stage().addActor(label)
+                }
+            }
+        }*/
+
+        for (x in 0 until FlatTiledGraph.sizeX) {
+            for (y in 0 until FlatTiledGraph.sizeY) {
+                if (worldMap.getNode(x, y).type == 2) {
+                    val pos = worldMap.getNode(x, y).toWorldPos(32, 1f)
+                    createTree(pos)
                 }
             }
         }
@@ -106,7 +118,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
     }
 
     fun createPixmapTerrain() {
-        val pixmap = Pixmap(100, 100, Pixmap.Format.RGBA8888)
+        val pixmap = Pixmap(200, 200, Pixmap.Format.RGBA8888)
         pixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0f))
         pixmap.fill()
         pixmap.setColor(Color.BLACK)
@@ -116,7 +128,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         val entity = engine.createEntity()
         val transform = engine.createComponent(TransformComponent::class.java)
         transform.pos.set(pixmap.width / 2f, pixmap.height / 2f)
-        transform.scale.set(128f, 128f)
+        transform.scale.set(32f, 32f)
         entity.add(transform)
 
         val sprite = engine.createComponent(SpriteComponent::class.java)
@@ -155,7 +167,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         val velocity = engine.createComponent(VelocityComponent::class.java)
         entity.add(velocity)
 
-        val size = 32
+        val size = 16
         val sprite = engine.createComponent(SpriteComponent::class.java)
         sprite.image = Image(characterTexture)
         with(sprite.image) {
@@ -191,7 +203,7 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         Mappers.entityBySpriteComponent.put(sprite, entity)
     }
 
-    fun createTree() {
+    fun createTree(pos: Vector2) {
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
@@ -219,22 +231,28 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         val transformComponent = Mappers.transform.get(Globals.clickedCharacter)
         val characterComponent = Mappers.character.get(Globals.clickedCharacter)
         val velocityComponent = Mappers.velocity.get(Globals.clickedCharacter)
-        val startNode = worldMap.getNodeByPosition(Vector2(transformComponent.pos.x, transformComponent.pos.y), 32, 4f)
-        val endNode = worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), 32, 4f)
+        val startNode = worldMap.getNodeByPosition(Vector2(transformComponent.pos.x, transformComponent.pos.y), 32, 1f)
+        val endNode = worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), 32, 1f)
         characterComponent.targetPositions.clear()
         path.clear()
-        if (pathfinder.searchNodePath(startNode, endNode, heuristic, path)) {
+        if (pathfinder.searchNodePath(startNode, endNode, heuristic, path) && startNode != endNode) {
             pathSmoother.smoothPath(path)
             characterComponent.hasTargetPosition = true
-            characterComponent.targetPosition = path[0].toWorldPos(32, 4f)
+            characterComponent.targetPosition = path[0].toWorldPos(32, 1f)
             velocityComponent.direction = (characterComponent.targetPosition - transformComponent.pos).nor()
 
-            path.forEach {
-                val targetPos = it.toWorldPos(32, 4f)
-                targetPos.set(targetPos.x + 16f * 4f, targetPos.y + 16 * 4f)
+            for (i in 1 until path.getCount()) {
+                val each = path[i]
+                val offsetXY = 16f
+                val targetPos = each.toWorldPos(32, 1f)
+                targetPos.set(targetPos.x + offsetXY, targetPos.y + offsetXY)
                 characterComponent.targetPositions.add(targetPos)
-                mediator.console().log("${it.toWorldPos(32, 4f).x}, ${it.toWorldPos(32, 4f).y}")
+                mediator.console().log("${each.toWorldPos(32, 1f).x}, ${each.toWorldPos(32, 1f).y}")
             }
         }
+    }
+
+    fun loadMap() {
+
     }
 }

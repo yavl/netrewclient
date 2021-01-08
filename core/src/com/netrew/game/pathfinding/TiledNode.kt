@@ -26,9 +26,9 @@ import com.badlogic.gdx.utils.Array
 </N> */
 abstract class TiledNode<N : TiledNode<N>?>(
         /** The x coordinate of this tile  */
-        val x: Int,
+        var x: Int,
         /** The y coordinate of this tile  */
-        val y: Int,
+        var y: Int,
         /** The type of this tile, see [.TILE_EMPTY], [.TILE_FLOOR] and [.TILE_WALL]  */
         open val type: Int, var connections: Array<Connection<FlatTiledNode?>>) {
     abstract val index: Int
@@ -40,7 +40,7 @@ abstract class TiledNode<N : TiledNode<N>?>(
         /** A constant representing a walkable tile  */
         const val TILE_FLOOR = 1
 
-        /** A constant representing a wall  */
-        const val TILE_WALL = 2
+        /** A constant representing a tree  */
+        const val TILE_TREE = 2
     }
 }

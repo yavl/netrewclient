@@ -144,9 +144,9 @@ class Main : Game() {
         assets.load("tree.png", Texture::class.java)
         assets.load("skins/uiskin.json", Skin::class.java)
         assets.load("languages/bundle", I18NBundle::class.java)
-        assets.load("tilemap/heightmap.png", Texture::class.java)
+        assets.load("maps/europe/heightmap.png", Texture::class.java)
         assets.setLoader(TiledMap::class.java, TmxMapLoader(InternalFileHandleResolver()))
-        assets.load("tilemap/untitled.tmx", TiledMap::class.java)
+        assets.load("maps/europe/tilemap.tmx", TiledMap::class.java)
         assets.finishLoading()
     }
 

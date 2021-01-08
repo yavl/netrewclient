@@ -30,8 +30,10 @@ class MovementSystem : IteratingSystem(Family.all(TransformComponent::class.java
                 character.targetPositions.removeIndex(0)
             }
             else {
+                transform.pos.set(character.targetPosition)
                 character.hasTargetPosition = false
                 velocity.speed = 0f
+                character.targetPositions.clear()
             }
         }
     }

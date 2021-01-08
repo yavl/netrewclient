@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
 import com.netrew.game.pathfinding.TiledNode.Companion.TILE_FLOOR
+import com.netrew.game.pathfinding.TiledNode.Companion.TILE_TREE
 import com.netrew.game.pathfinding.TiledNode.Companion.TILE_WATER
 /** A random generated graph representing a flat tiled map.
  *
@@ -53,6 +54,7 @@ class FlatTiledGraph : TiledGraph<FlatTiledNode?> {
                 when (color) {
                     Color.BLACK -> type = TILE_WATER
                     Color.WHITE -> type = TILE_FLOOR
+                    Color.GREEN -> type = TILE_TREE
                 }
                 nodes.add(FlatTiledNode(x, y, type, 4));
             }
