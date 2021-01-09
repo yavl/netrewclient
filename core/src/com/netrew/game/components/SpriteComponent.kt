@@ -12,6 +12,6 @@ class SpriteComponent : Component, Pool.Poolable {
     lateinit var image: Image
 
     override fun reset() {
-        TODO("Not yet implemented")
+        image.remove()
     }
 }

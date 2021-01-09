@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Pool
 import com.netrew.Globals
 
 class LabelComponent() : Component, Pool.Poolable {
-    var label = Label("default", Label.LabelStyle(Globals.defaultFont, Color.WHITE))
+    var label = Label("default", Label.LabelStyle(Globals.characterFont, Color.WHITE))
 
     init {
         label.setOrigin(Align.center)
@@ -17,6 +17,6 @@ class LabelComponent() : Component, Pool.Poolable {
     }
 
     override fun reset() {
-        TODO("Not yet implemented")
+        label.remove()
     }
 }

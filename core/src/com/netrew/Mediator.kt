@@ -7,8 +7,11 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.viewport.ScreenViewport
+import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.widget.*
 import com.netrew.game.World
 import com.netrew.net.GameClient
 import com.strongjoshua.console.GUIConsole
@@ -27,7 +30,13 @@ class Mediator {
     }
 
     fun createConsole() {
-        Globals.console = GUIConsole(Globals.skin, true, Input.Keys.GRAVE)
+        Globals.console = GUIConsole(skin(), true, Input.Keys.GRAVE,
+                VisWindow::class.java,
+                VisTable::class.java, "default-pane",
+                TextField::class.java,
+                VisTextButton::class.java,
+                VisLabel::class.java,
+                VisScrollPane::class.java)
     }
 
     fun console(): GUIConsole {

@@ -41,6 +41,7 @@ object Globals {
     // Fonts
     lateinit var defaultFont: BitmapFont
     lateinit var chatFont: BitmapFont
+    lateinit var characterFont: BitmapFont
 }
 
 /// Kotlin extensions below

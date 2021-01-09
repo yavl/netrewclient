@@ -13,5 +13,4 @@ object Mappers {
     val tilemapRenderers = ObjectMap<Entity, OrthogonalTiledMapRenderer>()
     val label = ComponentMapper.getFor(LabelComponent::class.java)
     val character = ComponentMapper.getFor(CharacterComponent::class.java)
-    val entityBySpriteComponent = ObjectMap<SpriteComponent, Entity>()
 }

@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.viewport.ScreenViewport
+import com.kotcrab.vis.ui.VisUI
 import com.netrew.Globals.uiStage
 import com.netrew.game.ConsoleCommandExecutor
 import com.netrew.game.TilemapEntityListener
@@ -42,26 +43,25 @@ class Main : Game() {
 
     val engine = PooledEngine()
     val mediator = Mediator()
-    val world = World(mediator, engine)
     val cam = mediator.camera()
 
     override fun create() {
         initAssets()
+        VisUI.load()
         batch = SpriteBatch()
         uiStage = Stage(ScreenViewport())
         cam.viewportWidth = Gdx.graphics.width.toFloat()
         cam.viewportHeight = Gdx.graphics.height.toFloat()
         cam.position.set(cam.viewportWidth / 2, cam.viewportHeight / 2, 0f)
 
-        Globals.bundle = assets.get<I18NBundle>("languages/bundle")
-        Globals.skin = assets.get("skins/uiskin.json")
         Globals.defaultFont = generateFont(24)
         Globals.chatFont = generateFont(20)
+        Globals.characterFont = generateFont(20)
+        Globals.bundle = assets.get<I18NBundle>("languages/bundle")
+        Globals.skin = VisUI.getSkin()
+        Globals.skin.add("default-font", Globals.defaultFont)
+        Globals.world = World(mediator, engine)
         Scene2DSkin.defaultSkin = Globals.skin
-        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
-        pixmap.setColor(Color.WHITE)
-        pixmap.fill()
-        Globals.skin.add("white", Texture(pixmap))
 
         menu = MainMenu(this, mediator)
         setScreen(menu)
@@ -104,7 +104,7 @@ class Main : Game() {
         engine.addSystem(SpriteRenderingSystem())
         engine.addSystem(NameLabelRenderingSystem())
         engine.addEntityListener(Family.all(TilemapComponent::class.java).get(), TilemapEntityListener())
-        world.create()
+        mediator.world().create()
     }
 
     override fun render() {

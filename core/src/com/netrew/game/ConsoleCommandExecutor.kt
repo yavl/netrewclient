@@ -7,6 +7,7 @@ import com.netrew.Mediator
 import com.netrew.toWorldPos
 import com.strongjoshua.console.CommandExecutor
 import com.strongjoshua.console.annotation.ConsoleDoc
+import java.lang.Exception
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -52,5 +53,25 @@ class ConsoleCommandExecutor(private val mediator: Mediator) : CommandExecutor()
     @ConsoleDoc(description = "Show cursor pos (x, y).")
     fun cursor() {
         console.log("${Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos()}")
+    }
+
+    @ConsoleDoc(description = "Spawn character at cursor pos.")
+    fun spawn() {
+        mediator.world().createCharacter(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
+    }
+
+    @ConsoleDoc(description = "Save game.")
+    fun save() {
+        mediator.world().saveGame()
+    }
+
+    @ConsoleDoc(description = "Load game.")
+    fun load() {
+        mediator.world().loadGame()
+    }
+
+    @ConsoleDoc(description = "Remove all characters.")
+    fun clear() {
+        mediator.world().clearCharacters()
     }
 }

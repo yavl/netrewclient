@@ -22,6 +22,7 @@ allprojects {
         appName = "Netrew"
         gdxVersion = '1.9.12'
         typingLabelVersion = '1.2.0'
+        visuiVersion = '1.4.8'
     }
 
     repositories {
@@ -58,6 +59,7 @@ project(":core") {
         compile group: 'io.github.libktx', name: 'ktx-math', version: '1.9.12-b1'
         compile group: 'com.esotericsoftware', name: 'kryonet', version: '2.22.0-RC1'
         api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
+        compile "com.kotcrab.vis:vis-ui:$visuiVersion"
     }
 }
 

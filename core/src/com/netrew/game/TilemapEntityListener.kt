@@ -14,6 +14,6 @@ class TilemapEntityListener() : EntityListener {
     }
 
     override fun entityRemoved(entity: Entity) {
-        TODO("Not yet implemented")
+        Mappers.tilemapRenderers.get(entity).dispose()
     }
 }

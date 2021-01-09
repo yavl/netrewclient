@@ -1,5 +1,7 @@
 package com.netrew.game
 
+import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.pfa.PathSmoother
@@ -11,14 +13,18 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.ui.Image
-import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
+import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.io.Input
+import com.esotericsoftware.kryo.io.Output
 import com.netrew.*
 import com.netrew.game.components.*
 import com.netrew.game.pathfinding.*
 import ktx.actors.onClick
-import ktx.math.*
+import ktx.math.minus
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 
 class World(val mediator: Mediator, val engine: PooledEngine) {
@@ -50,18 +56,6 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         createPixmapTerrain()
         createCharacter(Vector2(766f, 3993f))
         createCharacter(Vector2(786f, 4013f))
-
-        /*
-        createCharacter(Vector2(1165f, 1150f))
-        createCharacter(Vector2(1046f, 1371f))
-        createCharacter(Vector2(1173f, 1379f))
-        createCharacter(Vector2(1134f, 1269f))
-
-        createCharacter(Vector2(2417f, 2790f))
-        createCharacter(Vector2(1871f, 1794f))
-        createCharacter(Vector2(1842f, 1970f))
-        createCharacter(Vector2(1715f, 1886f))
-        createCharacter(Vector2(1824f, 1904f))*/
     }
 
     fun createTerrain() {
@@ -191,7 +185,15 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         entity.add(sprite)
 
         val nameLabel = engine.createComponent(LabelComponent::class.java)
-        nameLabel.label.setText(nameAssigner.getUnassignedName())
+        with(nameLabel.label) {
+            setText(nameAssigner.getUnassignedName())
+            onHover {
+                mediator.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
+            }
+            onHoverEnd {
+                mediator.hidePopupMenu()
+            }
+        }
         entity.add(nameLabel)
         val group = Group()
         group.isTransform = true
@@ -200,7 +202,6 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         mediator.stage().addActor(group)
 
         engine.addEntity(entity)
-        Mappers.entityBySpriteComponent.put(sprite, entity)
     }
 
     fun createTree(pos: Vector2) {
@@ -252,7 +253,59 @@ class World(val mediator: Mediator, val engine: PooledEngine) {
         }
     }
 
-    fun loadMap() {
+    fun saveGame() {
+        val kryo = Kryo()
+        kryo.register(TransformComponent::class.java)
+        kryo.register(VelocityComponent::class.java)
+        kryo.register(CharacterComponent::class.java)
+        kryo.register(Int::class.java)
+        val output = Output(FileOutputStream("autosave.bin"))
 
+        val family = Family.all(TransformComponent::class.java, VelocityComponent::class.java, CharacterComponent::class.java)
+        val entitiesCount = engine.getEntitiesFor(family.get()).size()
+        kryo.writeObject(output, entitiesCount)
+        for (each in engine.getEntitiesFor(family.get())) {
+            val transform = Mappers.transform.get(each)
+            val velocity = Mappers.velocity.get(each)
+            val character = Mappers.character.get(each)
+
+            kryo.writeObject(output, transform)
+            kryo.writeObject(output, velocity)
+            kryo.writeObject(output, character)
+        }
+        output.close()
+    }
+
+    fun loadGame() {
+        val kryo = Kryo()
+        kryo.register(TransformComponent::class.java)
+        kryo.register(VelocityComponent::class.java)
+        kryo.register(CharacterComponent::class.java)
+        kryo.register(Int::class.java)
+        val input = Input(FileInputStream("autosave.bin"))
+
+        try {
+            val entitiesCount = kryo.readObject(input, Int::class.java)
+
+            for (each in 0 until entitiesCount) {
+                val transform = kryo.readObject(input, TransformComponent::class.java)
+                val velocity = kryo.readObject(input, VelocityComponent::class.java)
+                val character = kryo.readObject(input, CharacterComponent::class.java)
+
+                createCharacter(transform.pos)
+            }
+        } catch(e: Exception) {
+            println(e.message)
+        }
+    }
+
+    fun clearCharacters() {
+        val family = Family.all(TransformComponent::class.java, VelocityComponent::class.java, CharacterComponent::class.java)
+
+        while (engine.getEntitiesFor(family.get()).size() > 0) { // for some reason it won't remove all entities without `while`
+            for (each in engine.getEntitiesFor(family.get())) {
+                engine.removeEntity(each)
+            }
+        }
     }
 }

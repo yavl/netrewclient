@@ -8,6 +8,6 @@ class TilemapComponent : Component, Pool.Poolable {
     lateinit var tiledMap: TiledMap
 
     override fun reset() {
-        TODO("Not yet implemented")
+        tiledMap.dispose()
     }
 }
