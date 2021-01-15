@@ -109,9 +109,9 @@ class FlatTiledGraph : TiledGraph<FlatTiledNode?> {
         return node!!.index
     }
 
-    fun getNodeByPosition(position: Vector2, tileSize: Int, scale: Float): FlatTiledNode {
-        val x = (position.x / (tileSize * scale)).toInt()
-        val y = (position.y / (tileSize * scale)).toInt()
+    fun getNodeByPosition(position: Vector2, tileSize: Int): FlatTiledNode {
+        val x = (position.x / tileSize).toInt()
+        val y = (position.y / tileSize).toInt()
         return getNode(x, y)
     }
 }

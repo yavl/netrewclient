@@ -27,7 +27,7 @@ class FlatTiledNode(x: Int, y: Int, type: Int, connectionCapacity: Int) : TiledN
     override val index: Int
         get() = x * FlatTiledGraph.sizeY + y
 
-    fun toWorldPos(tileSize: Int, scale: Float): Vector2 {
-        return Vector2(tileSize * x * scale, tileSize * y * scale)
+    fun toWorldPos(tileSize: Int): Vector2 {
+        return Vector2((tileSize * x).toFloat(), (tileSize * y).toFloat())
     }
 }

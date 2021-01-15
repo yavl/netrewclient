@@ -1,12 +1,10 @@
 package com.netrew
 
-import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Pixmap
@@ -15,8 +13,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
-import com.badlogic.gdx.maps.tiled.TiledMap
-import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -25,9 +21,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.VisUI
 import com.netrew.Globals.uiStage
 import com.netrew.game.ConsoleCommandExecutor
-import com.netrew.game.TilemapEntityListener
 import com.netrew.game.World
-import com.netrew.game.components.TilemapComponent
 import com.netrew.game.systems.*
 import com.netrew.ui.MainMenu
 import ktx.scene2d.Scene2DSkin
@@ -99,11 +93,10 @@ class Main : Game() {
         console.isVisible = false
 
         engine.addSystem(MovementSystem())
-        engine.addSystem(TilemapRenderingSystem(mediator))
         engine.addSystem(StageRenderingSystem(stage, 0))
+        engine.addSystem(TerritoryRenderingSystem())
         engine.addSystem(SpriteRenderingSystem())
         engine.addSystem(NameLabelRenderingSystem())
-        engine.addEntityListener(Family.all(TilemapComponent::class.java).get(), TilemapEntityListener())
         mediator.world().create()
     }
 
@@ -145,8 +138,7 @@ class Main : Game() {
         assets.load("skins/uiskin.json", Skin::class.java)
         assets.load("languages/bundle", I18NBundle::class.java)
         assets.load("maps/europe/heightmap.png", Texture::class.java)
-        assets.setLoader(TiledMap::class.java, TmxMapLoader(InternalFileHandleResolver()))
-        assets.load("maps/europe/tilemap.tmx", TiledMap::class.java)
+        assets.load("maps/europe/terrain.png", Texture::class.java)
         assets.finishLoading()
     }
 
