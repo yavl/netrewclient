@@ -20,7 +20,7 @@ allprojects {
     version = '1.0'
     ext {
         appName = "Netrew"
-        gdxVersion = '1.9.12'
+        gdxVersion = '1.9.13'
         typingLabelVersion = '1.2.0'
         visuiVersion = '1.4.8'
     }
