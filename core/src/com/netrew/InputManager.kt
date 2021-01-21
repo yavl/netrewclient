@@ -74,7 +74,7 @@ class InputManager(mediator: Mediator) : InputProcessor {
             dragNew.set(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
             dragOld.set(dragNew)
         }
-        if (Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
             dragNew.set(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
             if (dragNew != dragOld) {
                 cam.translate((dragOld.x - dragNew.x) * cam.zoom, (dragNew.y - dragOld.y) * cam.zoom)

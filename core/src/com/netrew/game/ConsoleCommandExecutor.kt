@@ -60,6 +60,11 @@ class ConsoleCommandExecutor(private val mediator: Mediator) : CommandExecutor()
         mediator.world().createCharacter(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
     }
 
+    @ConsoleDoc(description = "Spawn tree at cursor pos.")
+    fun spawntree() {
+        mediator.world().createTree(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
+    }
+
     @ConsoleDoc(description = "Save game.")
     fun save() {
         mediator.world().saveGame()

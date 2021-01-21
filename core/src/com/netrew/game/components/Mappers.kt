@@ -1,9 +1,7 @@
 package com.netrew.game.components
 
 import com.badlogic.ashley.core.ComponentMapper
-import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
-import com.badlogic.gdx.utils.ObjectMap
+import com.netrew.game.components.complex.CharacterComponent
 
 object Mappers {
     val transform = ComponentMapper.getFor(TransformComponent::class.java)

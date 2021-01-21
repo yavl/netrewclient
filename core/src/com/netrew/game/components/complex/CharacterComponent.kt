@@ -1,4 +1,4 @@
-package com.netrew.game.components
+package com.netrew.game.components.complex
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.Vector2

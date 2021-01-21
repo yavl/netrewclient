@@ -77,6 +77,8 @@ class FlatTiledGraph : TiledGraph<FlatTiledNode?> {
         }
     }
 
+    operator fun get(x: Int, y: Int): FlatTiledNode = getNode(x, y)
+
     override fun getNode(x: Int, y: Int): FlatTiledNode {
         return nodes[x * sizeY + y]
     }

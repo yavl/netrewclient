@@ -96,6 +96,7 @@ class Main : Game() {
         engine.addSystem(StageRenderingSystem(stage, 0))
         engine.addSystem(TerritoryRenderingSystem())
         engine.addSystem(SpriteRenderingSystem())
+        engine.addSystem(TreeSpriteRenderingSystem())
         engine.addSystem(NameLabelRenderingSystem())
         mediator.world().create()
     }

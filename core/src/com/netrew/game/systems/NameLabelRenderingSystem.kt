@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
 import com.netrew.game.components.Mappers
 import com.netrew.game.components.LabelComponent
-import com.netrew.game.components.CharacterComponent
+import com.netrew.game.components.complex.CharacterComponent
 import com.netrew.game.components.SpriteComponent
 import com.netrew.game.components.TransformComponent
 

@@ -30,17 +30,24 @@ abstract class TiledNode<N : TiledNode<N>?>(
         /** The y coordinate of this tile  */
         var y: Int,
         /** The type of this tile, see [.TILE_EMPTY], [.TILE_FLOOR] and [.TILE_WALL]  */
-        open val type: Int, var connections: Array<Connection<FlatTiledNode?>>) {
+        open val type: Int,
+        var connections: Array<Connection<FlatTiledNode?>>) {
     abstract val index: Int
 
     companion object {
-        /** A constant representing a water tile  */
+        /// A constant representing a water tile
         const val TILE_WATER = 0
 
-        /** A constant representing a walkable tile  */
+        /// A constant representing a walkable tile
         const val TILE_FLOOR = 1
 
-        /** A constant representing a tree  */
+        /// A constant representing a tree
         const val TILE_TREE = 2
+
+        /// A constant representing a ground where plants be able to grow
+        const val TILE_GROUND = 3
+
+        /// A constant representing a house
+        const val TILE_HOUSE = 4
     }
 }
