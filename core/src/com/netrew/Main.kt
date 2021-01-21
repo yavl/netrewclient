@@ -26,7 +26,6 @@ import com.netrew.game.systems.*
 import com.netrew.ui.MainMenu
 import ktx.scene2d.Scene2DSkin
 
-
 class Main : Game() {
     private lateinit var batch: SpriteBatch
     lateinit var inputManager: InputManager
@@ -96,6 +95,7 @@ class Main : Game() {
         engine.addSystem(StageRenderingSystem(stage, 0))
         engine.addSystem(TerritoryRenderingSystem())
         engine.addSystem(SpriteRenderingSystem())
+        engine.addSystem(HouseSpriteRenderingSystem())
         engine.addSystem(TreeSpriteRenderingSystem())
         engine.addSystem(NameLabelRenderingSystem())
         mediator.world().create()
@@ -134,8 +134,9 @@ class Main : Game() {
 
     private fun initAssets() {
         assets = mediator.assets()
-        assets.load("circle.png", Texture::class.java)
-        assets.load("tree.png", Texture::class.java)
+        assets.load("gfx/circle.png", Texture::class.java)
+        assets.load("gfx/tree.png", Texture::class.java)
+        assets.load("gfx/house.png", Texture::class.java)
         assets.load("skins/uiskin.json", Skin::class.java)
         assets.load("languages/bundle", I18NBundle::class.java)
         assets.load("maps/europe/heightmap.png", Texture::class.java)

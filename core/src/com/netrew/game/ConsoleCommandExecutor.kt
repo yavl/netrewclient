@@ -7,7 +7,6 @@ import com.netrew.Mediator
 import com.netrew.toWorldPos
 import com.strongjoshua.console.CommandExecutor
 import com.strongjoshua.console.annotation.ConsoleDoc
-import java.lang.Exception
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -62,7 +61,14 @@ class ConsoleCommandExecutor(private val mediator: Mediator) : CommandExecutor()
 
     @ConsoleDoc(description = "Spawn tree at cursor pos.")
     fun spawntree() {
-        mediator.world().createTree(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos())
+        val node = mediator.world().worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), World.TILE_SIZE)
+        mediator.world().createTree(node.x, node.y)
+    }
+
+    @ConsoleDoc(description = "Spawn house at cursor pos.")
+    fun spawnhouse() {
+        val node = mediator.world().worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), World.TILE_SIZE)
+        mediator.world().createHouse(node.x, node.y)
     }
 
     @ConsoleDoc(description = "Save game.")

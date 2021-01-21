@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.netrew.Globals
+import com.netrew.game.World
 import com.netrew.game.components.Mappers
 import com.netrew.game.components.ShapeRendererComponent
 import com.netrew.game.components.SpriteComponent
@@ -19,7 +20,7 @@ class TerritoryRenderingSystem : IteratingSystem(Family.all(SpriteComponent::cla
         val transform = Mappers.transform.get(entity)
         val shapeRenderer = Mappers.shapeRenderer.get(entity).shapeRenderer
 
-        val node = Globals.world.worldMap.getNodeByPosition(transform.pos, 32).toWorldPos(32)
+        val node = Globals.world.worldMap.getNodeByPosition(transform.pos, World.TILE_SIZE).toWorldPos(World.TILE_SIZE)
         val color = Color(sprite.image.color)
         color.a = 0.5f
         Gdx.gl.glEnable(GL20.GL_BLEND)
@@ -27,7 +28,7 @@ class TerritoryRenderingSystem : IteratingSystem(Family.all(SpriteComponent::cla
         shapeRenderer.projectionMatrix = Globals.cam.combined
         shapeRenderer.setColor(color);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.rect(node.x, node.y, 32f, 32f);
+        shapeRenderer.rect(node.x, node.y, World.TILE_SIZE, World.TILE_SIZE);
         shapeRenderer.end();
     }
 }

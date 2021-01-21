@@ -17,8 +17,10 @@ import com.badlogic.gdx.utils.Align
 import com.netrew.*
 import com.netrew.game.components.*
 import com.netrew.game.components.complex.CharacterComponent
+import com.netrew.game.components.complex.HouseComponent
 import com.netrew.game.components.complex.TreeComponent
 import com.netrew.game.pathfinding.*
+import com.netrew.game.pathfinding.TiledNode.Companion.TILE_TREE
 import ktx.actors.onClick
 import ktx.math.minus
 
@@ -29,6 +31,7 @@ class World(val mediator: Mediator, val engine: Engine) {
 
     lateinit var characterTexture: Texture
     lateinit var treeTexture: Texture
+    lateinit var houseTexture: Texture
     lateinit var heightmapPixmap: Pixmap
     lateinit var territoryPixmap: Pixmap
     lateinit var tileTexture: Texture
@@ -41,10 +44,12 @@ class World(val mediator: Mediator, val engine: Engine) {
     lateinit var pathSmoother: PathSmoother<FlatTiledNode, Vector2>
 
     fun create() {
-        characterTexture = mediator.assets().get<Texture>("circle.png")
+        characterTexture = mediator.assets().get<Texture>("gfx/circle.png")
         characterTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-        treeTexture = mediator.assets().get<Texture>("tree.png")
+        treeTexture = mediator.assets().get<Texture>("gfx/tree.png")
         treeTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+        houseTexture = mediator.assets().get<Texture>("gfx/house.png")
+        houseTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
         val heightmapTexture = mediator.assets().get<Texture>("maps/europe/heightmap.png")
         if (!heightmapTexture.textureData.isPrepared) {
@@ -53,10 +58,7 @@ class World(val mediator: Mediator, val engine: Engine) {
         heightmapPixmap = heightmapTexture.textureData.consumePixmap()
 
         terrainTexture = mediator.assets().get<Texture>("maps/europe/terrain.png")
-
         createTerrain()
-        createCharacter(Vector2(1360f, 10512f))
-        createCharacter(Vector2(1941f, 10301f))
     }
 
     fun createTerrain() {
@@ -98,9 +100,8 @@ class World(val mediator: Mediator, val engine: Engine) {
 
         for (x in 0 until FlatTiledGraph.sizeX) {
             for (y in 0 until FlatTiledGraph.sizeY) {
-                if (worldMap[x, y].type == 2) {
-                    val pos = worldMap[x, y].toWorldPos(32)
-                    createTree(pos)
+                if (worldMap[x, y].type == TILE_TREE) {
+                    createTree(x, y)
                 }
             }
         }
@@ -203,12 +204,12 @@ class World(val mediator: Mediator, val engine: Engine) {
         engine.addEntity(entity)
     }
 
-    fun createTree(pos: Vector2) {
+    fun createTree(x: Int, y: Int) {
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
         with(transform) {
-            this.pos.set(pos)
+            this.pos.set(worldMap[x, y].toWorldPos(TILE_SIZE))
         }
         entity.add(transform)
 
@@ -231,20 +232,49 @@ class World(val mediator: Mediator, val engine: Engine) {
         engine.addEntity(entity)
     }
 
+    fun createHouse(x: Int, y: Int) {
+        val entity = engine.createEntity()
+
+        val transform = engine.createComponent(TransformComponent::class.java)
+        with(transform) {
+            pos.set(worldMap[x, y].toWorldPos(TILE_SIZE))
+            //scale.set(0.5f, 0.5f)
+        }
+        entity.add(transform)
+
+        val sprite = engine.createComponent(SpriteComponent::class.java)
+        sprite.image = Image(houseTexture)
+        with(sprite.image) {
+            setColor(color)
+            setScale(transform.scale.x, transform.scale.y)
+            setOrigin(Align.center)
+            onClick {
+                mediator.console().log("${transform.pos.x}, ${transform.pos.y}")
+            }
+        }
+        mediator.stage().addActor(sprite.image)
+        entity.add(sprite)
+
+        val houseComponent = engine.createComponent(HouseComponent::class.java)
+        entity.add(houseComponent)
+
+        engine.addEntity(entity)
+    }
+
     fun onTerrainRightClick() {
         if (Globals.clickedCharacter == null)
             return
         val transformComponent = Mappers.transform.get(Globals.clickedCharacter)
         val characterComponent = Mappers.character.get(Globals.clickedCharacter)
         val velocityComponent = Mappers.velocity.get(Globals.clickedCharacter)
-        val startNode = worldMap.getNodeByPosition(Vector2(transformComponent.pos.x, transformComponent.pos.y), 32)
-        val endNode = worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), 32)
+        val startNode = worldMap.getNodeByPosition(Vector2(transformComponent.pos.x, transformComponent.pos.y), TILE_SIZE)
+        val endNode = worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), TILE_SIZE)
         characterComponent.targetPositions.clear()
         path.clear()
         if (pathfinder.searchNodePath(startNode, endNode, heuristic, path) && startNode != endNode) {
             pathSmoother.smoothPath(path)
             characterComponent.hasTargetPosition = true
-            characterComponent.targetPosition = path[0].toWorldPos(32)
+            characterComponent.targetPosition = path[0].toWorldPos(TILE_SIZE)
             val offsetXY = TILE_SIZE / 2f
             characterComponent.targetPosition.x += offsetXY
             characterComponent.targetPosition.y += offsetXY
@@ -252,10 +282,10 @@ class World(val mediator: Mediator, val engine: Engine) {
 
             for (i in 1 until path.getCount()) {
                 val each = path[i]
-                val targetPos = each.toWorldPos(32)
+                val targetPos = each.toWorldPos(TILE_SIZE)
                 targetPos.set(targetPos.x + offsetXY, targetPos.y + offsetXY)
                 characterComponent.targetPositions.add(targetPos)
-                mediator.console().log("${each.toWorldPos(32).x}, ${each.toWorldPos(32).y}")
+                mediator.console().log("${each.toWorldPos(TILE_SIZE).x}, ${each.toWorldPos(TILE_SIZE).y}")
             }
         }
     }

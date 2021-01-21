@@ -11,6 +11,7 @@ object DesktopLauncher {
         config.title = "Netrew"
         config.width = 800
         config.height = 600
+        config.useHDPI = true
         LwjglApplication(Main(), config)
     }
 }
