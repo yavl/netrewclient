@@ -19,10 +19,11 @@ class MainMenu(private val main: Main) : Screen {
     private val stage = Globals.uiStage
     lateinit var debugLabel: Label
     lateinit var scroll: ScrollPane
-    lateinit var popupMenu: PopupMenu
+    val popupMenu: PopupMenu = PopupMenu()
 
     init {
         Globals.mainMenu = this
+        stage.addActor(popupMenu)
     }
 
     override fun show() {
@@ -52,7 +53,9 @@ class MainMenu(private val main: Main) : Screen {
     override fun hide() {
     }
 
-    override fun dispose() {}
+    override fun dispose() {
+        popupMenu.dispose()
+    }
 
     fun showDebugWindow() {
         /// Debug menu:
@@ -78,13 +81,7 @@ class MainMenu(private val main: Main) : Screen {
     }
 
     fun showPopupMenu(mouseX: Float, mouseY: Float, entity: Entity) {
-        if (!this::popupMenu.isInitialized) {
-            popupMenu = PopupMenu()
-            stage.addActor(popupMenu)
-        }
-        else {
-            popupMenu.isVisible = true
-        }
+        popupMenu.isVisible = true
         popupMenu.show()
         popupMenu.update(entity)
         popupMenu.setPosition(mouseX, Gdx.graphics.height.toFloat() - mouseY)

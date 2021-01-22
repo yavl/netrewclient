@@ -40,16 +40,9 @@ class FlatTiledGraph : TiledGraph<FlatTiledNode?> {
         sizeX = pixmap.width
         sizeY = pixmap.height
 
-        val flipped = Pixmap(sizeX, sizeY, Pixmap.Format.RGBA8888)
         for (x in 0 until sizeX) {
             for (y in 0 until sizeY) {
-                flipped.drawPixel(x, y, pixmap.getPixel(x, sizeY - 1 - y))
-            }
-        }
-
-        for (x in 0 until sizeX) {
-            for (y in 0 until sizeY) {
-                val color = Color(flipped.getPixel(x, y))
+                val color = Color(pixmap.getPixel(x, y))
                 var type = TILE_WATER
                 when (color) {
                     Color.BLACK -> type = TILE_WATER

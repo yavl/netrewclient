@@ -10,9 +10,7 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Group
-import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.netrew.*
 import com.netrew.game.components.*
@@ -38,8 +36,6 @@ class World(val engine: Engine) {
     lateinit var treeTexture: Texture
     lateinit var houseTexture: Texture
     lateinit var heightmapPixmap: Pixmap
-    lateinit var territoryPixmap: Pixmap
-    lateinit var tileTexture: Texture
     lateinit var worldMap: FlatTiledGraph
     lateinit var terrainTexture: Texture
     val gameSaver = GameSaver()
@@ -61,6 +57,7 @@ class World(val engine: Engine) {
             heightmapTexture.textureData.prepare()
         }
         heightmapPixmap = heightmapTexture.textureData.consumePixmap()
+        heightmapPixmap.flipY()
 
         terrainTexture = Globals.assets.get<Texture>("maps/europe/terrain.png")
         createTerrain()
@@ -89,20 +86,25 @@ class World(val engine: Engine) {
 
         worldMap = FlatTiledGraph()
         worldMap.init(heightmapPixmap)
+        heightmapPixmap.dispose()
+        pathfinder = IndexedAStarPathFinder<FlatTiledNode>(worldMap, true)
+        pathSmoother = PathSmoother<FlatTiledNode, Vector2>(TiledRaycastCollisionDetector<FlatTiledNode?>(worldMap))
 
         /*
         /// create TILE TYPES labels
         run {
             for (x in 0 until FlatTiledGraph.sizeX) {
                 for (y in 0 until FlatTiledGraph.sizeY) {
-                    val label = Label(worldMap.getNode(x, y).type.toString(), Globals.skin())
+                    val label = Label(worldMap.getNode(x, y).type.toString(), Globals.skin)
                     label.setPosition(x * TILE_SIZE, y * TILE_SIZE)
                     if (worldMap.getNode(x, y).type == 1)
                         Globals.stage.addActor(label)
                 }
             }
-        }*/
+        }
+         */
 
+        /// spawn trees according to heightmap
         for (x in 0 until FlatTiledGraph.sizeX) {
             for (y in 0 until FlatTiledGraph.sizeY) {
                 if (worldMap[x, y].type == TILE_TREE) {
@@ -111,40 +113,27 @@ class World(val engine: Engine) {
             }
         }
 
-        pathfinder = IndexedAStarPathFinder<FlatTiledNode>(worldMap, true)
-        pathSmoother = PathSmoother<FlatTiledNode, Vector2>(TiledRaycastCollisionDetector<FlatTiledNode?>(worldMap))
-    }
-
-    fun createTerritoryPixmap() {
-        territoryPixmap = Pixmap(terrainTexture.width, terrainTexture.height, Pixmap.Format.RGBA8888)
-        territoryPixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0f))
-        territoryPixmap.fill()
-        territoryPixmap.setColor(Color.BLACK)
-        territoryPixmap.drawPixel(32, 32)
-        tileTexture = Texture(territoryPixmap)
-
-        val entity = engine.createEntity()
-        val transform = engine.createComponent(TransformComponent::class.java)
-        transform.pos.set(territoryPixmap.width / 2f, territoryPixmap.height / 2f)
-        transform.scale.set(TILE_SIZE, TILE_SIZE)
-        entity.add(transform)
-
-        val sprite = engine.createComponent(SpriteComponent::class.java)
-        sprite.image = Image(tileTexture)
-        with(sprite.image) {
-            touchable = Touchable.disabled
-            setScale(transform.scale.x, transform.scale.y)
-            onClick {
-                territoryPixmap.setColor(Color.RED)
-                territoryPixmap.drawPixel(33, 32)
-                tileTexture = Texture(territoryPixmap)
-                sprite.image.drawable = TextureRegionDrawable(tileTexture)
+        val populationTexture = Globals.assets.get<Texture>("maps/europe/population.png")
+        if (!populationTexture.textureData.isPrepared) {
+            populationTexture.textureData.prepare()
+        }
+        val populationPixmap = populationTexture.textureData.consumePixmap()
+        val flipped = Pixmap(FlatTiledGraph.sizeX, FlatTiledGraph.sizeY, Pixmap.Format.RGBA8888)
+        for (x in 0 until FlatTiledGraph.sizeX) {
+            for (y in 0 until FlatTiledGraph.sizeY) {
+                flipped.drawPixel(x, y, populationPixmap.getPixel(x, FlatTiledGraph.sizeY - 1 - y))
             }
         }
-        entity.add(sprite)
-        Globals.stage.addActor(Mappers.sprite.get(entity).image)
 
-        engine.addEntity(entity)
+        for (x in 0 until flipped.width) {
+            for (y in 0 until flipped.height) {
+                val color = Color(flipped.getPixel(x, y))
+                if (color != Color.BLACK) {
+                    val pos = worldMap[x, y].toWorldPos(TILE_SIZE)
+                    createCharacter(pos, color)
+                }
+            }
+        }
     }
 
     fun createCharacter(pos: Vector2, color: Color = Color(1f, 1f, 1f, 1f), characterComponent: CharacterComponent = engine.createComponent(CharacterComponent::class.java), velocityComponent: VelocityComponent = engine.createComponent(VelocityComponent::class.java)) {
@@ -188,7 +177,7 @@ class World(val engine: Engine) {
 
         val nameLabel = engine.createComponent(LabelComponent::class.java)
         with(nameLabel.label) {
-            setText(nameAssigner.getUnassignedName())
+            setText(characterComponent.name)
             onHover {
                 Globals.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
             }
@@ -197,6 +186,7 @@ class World(val engine: Engine) {
             }
         }
         entity.add(nameLabel)
+
         val group = Group()
         group.isTransform = true
         group.addActor(sprite.image)
@@ -209,7 +199,7 @@ class World(val engine: Engine) {
         engine.addEntity(entity)
     }
 
-    fun createTree(x: Int, y: Int) {
+    fun createTree(x: Int, y: Int, treeComponent: TreeComponent = engine.createComponent(TreeComponent::class.java)) {
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
@@ -299,11 +289,13 @@ class World(val engine: Engine) {
     }
 
     fun loadGame() {
+        clearEntities()
         gameSaver.load("autosave.bin")
+        Globals.clickedCharacter = null
     }
 
-    fun clearCharacters() {
-        val family = Family.all(CharacterComponent::class.java)
+    fun clearEntities() {
+        val family = Family.one(CharacterComponent::class.java, HouseComponent::class.java, TreeComponent::class.java)
 
         while (engine.getEntitiesFor(family.get()).size() > 0) { // for some reason it won't remove all entities without `while`
             for (each in engine.getEntitiesFor(family.get())) {

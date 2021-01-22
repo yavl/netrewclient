@@ -5,20 +5,15 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.VisUI
 import com.netrew.Globals.uiStage
-import com.netrew.game.ConsoleCommandExecutor
 import com.netrew.game.GameSaver
 import com.netrew.game.World
 import com.netrew.game.systems.*
@@ -44,16 +39,6 @@ class Main : Game() {
         cam.viewportHeight = Gdx.graphics.height.toFloat()
         cam.position.set(cam.viewportWidth / 2, cam.viewportHeight / 2, 0f)
 
-        Globals.generateFonts()
-        Globals.bundle = assets.get("languages/bundle")
-        Globals.skin = VisUI.getSkin()
-        Globals.skin.add("default-font", Globals.Fonts.defaultFont)
-        Globals.world = World(engine)
-        Scene2DSkin.defaultSkin = Globals.skin
-
-        menu = MainMenu(this)
-        setScreen(menu)
-
         val viewport = ScreenViewport(cam)
         Globals.createStage(viewport, batch)
         val stage = Globals.stage
@@ -65,22 +50,16 @@ class Main : Game() {
         inputs.addProcessor(stage)
         Gdx.input.inputProcessor = inputs
 
-        val gameSaver = GameSaver()
-        gameSaver.loadSettings()
-
+        Globals.generateFonts()
+        Globals.bundle = assets.get("languages/bundle")
+        Globals.skin = VisUI.getSkin()
+        Globals.skin.add("default-font", Globals.Fonts.defaultFont)
+        Globals.world = World(engine)
+        Scene2DSkin.defaultSkin = Globals.skin
         Globals.createConsole()
-        val console = Globals.console
-        console.setCommandExecutor(ConsoleCommandExecutor())
-        console.setTitle("")
-        console.enableSubmitButton(true)
-        console.window.isMovable = false
-        val consoleBgPixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
-        consoleBgPixmap.setColor(Color(0f, 0f, 0f, 0.6f))
-        consoleBgPixmap.fill()
-        val consoleBg = TextureRegionDrawable(TextureRegion(Texture(consoleBgPixmap)))
-        console.window.background = consoleBg
-        console.setSizePercent(100f, 50f)
-        console.isVisible = false
+
+        menu = MainMenu(this)
+        setScreen(menu)
 
         engine.addSystem(MovementSystem())
         engine.addSystem(StageRenderingSystem(stage, 0))
@@ -90,6 +69,9 @@ class Main : Game() {
         engine.addSystem(TreeSpriteRenderingSystem())
         engine.addSystem(NameLabelRenderingSystem())
         Globals.world.create()
+
+        val gameSaver = GameSaver()
+        gameSaver.loadSettings()
     }
 
     override fun render() {
@@ -111,6 +93,7 @@ class Main : Game() {
         batch.dispose()
         assets.dispose()
         uiStage.dispose()
+        menu.dispose()
         Globals.dispose()
     }
 
@@ -132,6 +115,7 @@ class Main : Game() {
         assets.load("languages/bundle", I18NBundle::class.java)
         assets.load("maps/europe/heightmap.png", Texture::class.java)
         assets.load("maps/europe/terrain.png", Texture::class.java)
+        assets.load("maps/europe/population.png", Texture::class.java)
         assets.finishLoading()
     }
 

@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Disposable
 import com.netrew.Globals
 import com.netrew.game.components.Mappers
 import com.rafaskoberg.gdx.typinglabel.TypingConfig
@@ -21,9 +22,9 @@ import ktx.scene2d.scene2d
 import ktx.scene2d.table
 import ktx.scene2d.verticalGroup
 
-class PopupMenu() : Group() {
-    private val drawableBg: TextureRegionDrawable
+class PopupMenu() : Group(), Disposable {
     private val table: KTableWidget
+    private val drawableBgTexture: Texture
 
     init {
         TypingConfig.DEFAULT_SPEED_PER_CHAR = 0f
@@ -32,7 +33,9 @@ class PopupMenu() : Group() {
         val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color(0f, 0f, 0f, 0.4f));
         pixmap.fill();
-        drawableBg = TextureRegionDrawable(TextureRegion(Texture(pixmap)));
+        drawableBgTexture = Texture(pixmap)
+        val drawableBg = TextureRegionDrawable(TextureRegion(drawableBgTexture));
+        pixmap.dispose()
 
         table = scene2d.table {
             setBackground(drawableBg)
@@ -52,7 +55,7 @@ class PopupMenu() : Group() {
 
         val healthss = Globals.bundle.format("popup.health.wounded")
         val healthString = Globals.bundle.format("popup.health", healthss, "{COLOR=RED}{SHAKE}")
-        val woundedLabel = TypingLabel("$healthString", labelStyle)
+        val woundedLabel = TypingLabel(healthString, labelStyle)
         woundedLabel.name = "woundedLabel"
         val verticalGroup = verticalGroup {
             addActor(nameLabel)
@@ -78,6 +81,8 @@ class PopupMenu() : Group() {
     }
 
     fun update(entity: Entity) {
+        if (Mappers.character.get(entity) == null)
+            return
         val characterName = Mappers.character.get(entity).name
         val characterAge = 0
 
@@ -86,5 +91,9 @@ class PopupMenu() : Group() {
 
         val ageLabel = findActor<Label>("ageLabel")
         ageLabel.setText(Globals.bundle.format("popup.age", characterAge))
+    }
+
+    override fun dispose() {
+        drawableBgTexture.dispose()
     }
 }

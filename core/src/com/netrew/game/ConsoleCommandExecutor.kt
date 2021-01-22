@@ -82,6 +82,6 @@ class ConsoleCommandExecutor() : CommandExecutor() {
 
     @ConsoleDoc(description = "Remove all characters.")
     fun clear() {
-        Globals.world.clearCharacters()
+        Globals.world.clearEntities()
     }
 }

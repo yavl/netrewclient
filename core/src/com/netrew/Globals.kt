@@ -4,10 +4,13 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
@@ -17,9 +20,11 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.widget.*
+import com.netrew.game.ConsoleCommandExecutor
 import com.netrew.game.World
 import com.netrew.net.GameClient
 import com.netrew.ui.MainMenu
@@ -37,6 +42,7 @@ object Globals {
     val cam = OrthographicCamera()
     lateinit var skin: Skin
     lateinit var console: GUIConsole
+    private lateinit var consoleBgTexture: Texture
 
     /// Gameplay related:
     var clickedCharacter: Entity? = null
@@ -70,6 +76,19 @@ object Globals {
             VisTextButton::class.java,
             VisLabel::class.java,
             VisScrollPane::class.java)
+        console.setCommandExecutor(ConsoleCommandExecutor())
+        console.setTitle("")
+        console.enableSubmitButton(true)
+        console.window.isMovable = false
+        val consoleBgPixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
+        consoleBgPixmap.setColor(Color(0f, 0f, 0f, 0.6f))
+        consoleBgPixmap.fill()
+        consoleBgTexture = Texture(consoleBgPixmap)
+        consoleBgPixmap.dispose()
+        val consoleBg = TextureRegionDrawable(TextureRegion(consoleBgTexture))
+        console.window.background = consoleBg
+        console.setSizePercent(100f, 50f)
+        console.isVisible = false
     }
 
     fun createStage(viewport: ScreenViewport, batch: SpriteBatch) {
@@ -81,7 +100,9 @@ object Globals {
         assets.dispose()
         Fonts.defaultFont.dispose()
         Fonts.chatFont.dispose()
+        Fonts.characterFont.dispose()
         console.dispose()
+        consoleBgTexture.dispose()
     }
 
     fun addText(text: String) {
@@ -118,6 +139,22 @@ fun Vector2.toWorldPos(): Vector2 {
     val worldPos = Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)
     val vec = cam.unproject(worldPos)
     return Vector2(vec.x, vec.y)
+}
+
+fun Pixmap.flipY() {
+    val temp = Pixmap(width, height, format)
+    for (x in 0 until width) {
+        for (y in 0 until height) {
+            temp.drawPixel(x, y, getPixel(x, height - 1 - y))
+        }
+    }
+    for (x in 0 until width) {
+        for (y in 0 until height) {
+            setColor(temp.getPixel(x, y))
+            drawPixel(x, y)
+        }
+    }
+    temp.dispose()
 }
 
 inline fun <T : Actor> T.onHover(crossinline listener: T.() -> Unit): ClickListener {
