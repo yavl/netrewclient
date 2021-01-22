@@ -9,10 +9,8 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -21,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.VisUI
 import com.netrew.Globals.uiStage
 import com.netrew.game.ConsoleCommandExecutor
+import com.netrew.game.GameSaver
 import com.netrew.game.World
 import com.netrew.game.systems.*
 import com.netrew.ui.MainMenu
@@ -28,15 +27,13 @@ import ktx.scene2d.Scene2DSkin
 
 class Main : Game() {
     private lateinit var batch: SpriteBatch
-    lateinit var inputManager: InputManager
-    lateinit var menu: MainMenu
+    private lateinit var inputManager: InputManager
+    private lateinit var menu: MainMenu
     private val inputs = InputMultiplexer()
-    //
-    lateinit internal var assets: AssetManager
+    private lateinit var assets: AssetManager
 
-    val engine = PooledEngine()
-    val mediator = Mediator()
-    val cam = mediator.camera()
+    private val engine = PooledEngine()
+    private val cam = Globals.cam
 
     override fun create() {
         initAssets()
@@ -47,47 +44,41 @@ class Main : Game() {
         cam.viewportHeight = Gdx.graphics.height.toFloat()
         cam.position.set(cam.viewportWidth / 2, cam.viewportHeight / 2, 0f)
 
-        Globals.defaultFont = generateFont(24)
-        Globals.chatFont = generateFont(20)
-        Globals.characterFont = generateFont(20)
-        Globals.bundle = assets.get<I18NBundle>("languages/bundle")
+        Globals.generateFonts()
+        Globals.bundle = assets.get("languages/bundle")
         Globals.skin = VisUI.getSkin()
-        Globals.skin.add("default-font", Globals.defaultFont)
-        Globals.world = World(mediator, engine)
+        Globals.skin.add("default-font", Globals.Fonts.defaultFont)
+        Globals.world = World(engine)
         Scene2DSkin.defaultSkin = Globals.skin
 
-        menu = MainMenu(this, mediator)
+        menu = MainMenu(this)
         setScreen(menu)
 
-        val viewp = ScreenViewport(cam)
-        mediator.createStage(viewp, batch)
-        val stage = mediator.stage()
+        val viewport = ScreenViewport(cam)
+        Globals.createStage(viewport, batch)
+        val stage = Globals.stage
         stage.isDebugAll = true
 
-        inputManager = InputManager(mediator)
+        inputManager = InputManager()
         inputs.addProcessor(inputManager)
         inputs.addProcessor(uiStage)
         inputs.addProcessor(stage)
         Gdx.input.inputProcessor = inputs
 
-        val prefs = Gdx.app.getPreferences("NetrewPreferences")
-        val x = prefs.getFloat("cameraPosX", 0f)
-        val y = prefs.getFloat("cameraPosY", 0f)
-        val zoom = prefs.getFloat("cameraZoom", 1f)
-        cam.position.set(x, y, 0f)
-        cam.zoom = zoom
+        val gameSaver = GameSaver()
+        gameSaver.loadSettings()
 
-        mediator.createConsole()
-        val console = mediator.console()
-        console.setCommandExecutor(ConsoleCommandExecutor(mediator))
+        Globals.createConsole()
+        val console = Globals.console
+        console.setCommandExecutor(ConsoleCommandExecutor())
         console.setTitle("")
         console.enableSubmitButton(true)
         console.window.isMovable = false
-        val consoleBgPixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        consoleBgPixmap.setColor(Color(0f, 0f, 0f, 0.6f));
-        consoleBgPixmap.fill();
-        val consoleBg = TextureRegionDrawable(TextureRegion(Texture(consoleBgPixmap)));
-        console.window.setBackground(consoleBg)
+        val consoleBgPixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
+        consoleBgPixmap.setColor(Color(0f, 0f, 0f, 0.6f))
+        consoleBgPixmap.fill()
+        val consoleBg = TextureRegionDrawable(TextureRegion(Texture(consoleBgPixmap)))
+        console.window.background = consoleBg
         console.setSizePercent(100f, 50f)
         console.isVisible = false
 
@@ -98,7 +89,7 @@ class Main : Game() {
         engine.addSystem(HouseSpriteRenderingSystem())
         engine.addSystem(TreeSpriteRenderingSystem())
         engine.addSystem(NameLabelRenderingSystem())
-        mediator.world().create()
+        Globals.world.create()
     }
 
     override fun render() {
@@ -113,27 +104,27 @@ class Main : Game() {
         inputManager.handleInput(dt)
         super.render()
 
-        mediator.console().draw()
+        Globals.console.draw()
     }
 
     override fun dispose() {
         batch.dispose()
         assets.dispose()
         uiStage.dispose()
-        mediator.dispose()
+        Globals.dispose()
     }
 
     override fun resize(width: Int, height: Int) {
         cam.viewportWidth = width.toFloat()
         cam.viewportHeight = height.toFloat()
         uiStage.viewport.update(width, height, true)
-        mediator.stage().viewport.update(width, height)
-        mediator.console().window.stage.viewport.update(width, height)
+        Globals.stage.viewport.update(width, height)
+        Globals.console.window.stage.viewport.update(width, height)
         menu.resize(width, height)
     }
 
     private fun initAssets() {
-        assets = mediator.assets()
+        assets = Globals.assets
         assets.load("gfx/circle.png", Texture::class.java)
         assets.load("gfx/tree.png", Texture::class.java)
         assets.load("gfx/house.png", Texture::class.java)
@@ -144,20 +135,11 @@ class Main : Game() {
         assets.finishLoading()
     }
 
-    private fun generateFont(size: Int): BitmapFont {
-        val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-Regular.ttf"))
-        val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
-        parameter.size = size
-        parameter.magFilter = Texture.TextureFilter.Linear
-        parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-        return generator.generateFont(parameter)
-    }
-
     override fun pause() {
-        mediator.timescale(0f)
+        Globals.timeScale = 0f
     }
 
     override fun resume() {
-        mediator.timescale(Globals.DEFAULT_TIMESCALE)
+        Globals.timeScale = Globals.DEFAULT_TIMESCALE
     }
 }

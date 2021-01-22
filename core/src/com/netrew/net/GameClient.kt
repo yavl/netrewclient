@@ -3,10 +3,9 @@ package com.netrew.net
 import com.esotericsoftware.kryonet.Client
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
-import com.netrew.Mediator
 import com.netrew.net.requests.ChatMessage
 
-class GameClient(ip: String, tcpPort: Int, udpPort: Int, val mediator: Mediator) : Listener() {
+class GameClient(ip: String, tcpPort: Int, udpPort: Int) : Listener() {
     val client = Client()
     val timeout = 5000
 

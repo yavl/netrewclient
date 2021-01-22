@@ -5,9 +5,9 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Touchable
-import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.utils.Align
-import com.netrew.Mediator
 import com.netrew.Globals
 import com.netrew.Main
 import com.netrew.ui.widgets.PopupMenu
@@ -15,8 +15,8 @@ import ktx.actors.txt
 import ktx.scene2d.scene2d
 import ktx.scene2d.scrollPane
 
-class MainMenu(private val main: Main, mediator: Mediator) : Screen {
-    private val stage = mediator.uiStage()
+class MainMenu(private val main: Main) : Screen {
+    private val stage = Globals.uiStage
     lateinit var debugLabel: Label
     lateinit var scroll: ScrollPane
     lateinit var popupMenu: PopupMenu
@@ -56,7 +56,7 @@ class MainMenu(private val main: Main, mediator: Mediator) : Screen {
 
     fun showDebugWindow() {
         /// Debug menu:
-        debugLabel = Label("Netrew game", Label.LabelStyle(Globals.chatFont, Color.WHITE))
+        debugLabel = Label("Netrew game", Label.LabelStyle(Globals.Fonts.chatFont, Color.WHITE))
         debugLabel.setAlignment(Align.topLeft)
 
         scroll = scene2d.scrollPane {

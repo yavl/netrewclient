@@ -2,9 +2,11 @@ package com.netrew.game
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Family
+import com.badlogic.gdx.Gdx
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
+import com.netrew.Globals
 import com.netrew.game.components.Mappers
 import com.netrew.game.components.TransformComponent
 import com.netrew.game.components.VelocityComponent
@@ -13,7 +15,7 @@ import com.netrew.game.components.complex.HouseComponent
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-class GameSaver(val engine: Engine, val world: World) {
+class GameSaver() {
     val kryo = Kryo()
 
     init {
@@ -24,7 +26,7 @@ class GameSaver(val engine: Engine, val world: World) {
         kryo.register(Int::class.java)
     }
 
-    fun save(path: String) {
+    fun save(path: String, engine: Engine) {
         val output = Output(FileOutputStream(path))
 
         // write characters
@@ -67,7 +69,7 @@ class GameSaver(val engine: Engine, val world: World) {
                 val velocity = kryo.readObject(input, VelocityComponent::class.java)
                 val character = kryo.readObject(input, CharacterComponent::class.java)
 
-                world.createCharacter(transform.pos)
+                Globals.world.createCharacter(transform.pos, characterComponent = character, velocityComponent = velocity)
             }
 
             // read houses
@@ -76,11 +78,28 @@ class GameSaver(val engine: Engine, val world: World) {
                 val transform = kryo.readObject(input, TransformComponent::class.java)
                 val house = kryo.readObject(input, HouseComponent::class.java)
 
-                val node = world.worldMap.getNodeByPosition(transform.pos, World.TILE_SIZE)
-                world.createHouse(node.x, node.y)
+                val node = Globals.world.worldMap.getNodeByPosition(transform.pos, World.TILE_SIZE)
+                Globals.world.createHouse(node.x, node.y, house)
             }
         } catch(e: Exception) {
             println(e.message)
         }
+    }
+
+    fun saveSettings() {
+        val prefs = Gdx.app.getPreferences("NetrewPreferences")
+        prefs.putFloat("cameraPosX", Globals.cam.position.x)
+        prefs.putFloat("cameraPosY", Globals.cam.position.y)
+        prefs.putFloat("cameraZoom", Globals.cam.zoom)
+        prefs.flush()
+    }
+
+    fun loadSettings() {
+        val prefs = Gdx.app.getPreferences("NetrewPreferences")
+        val x = prefs.getFloat("cameraPosX", 0f)
+        val y = prefs.getFloat("cameraPosY", 0f)
+        val zoom = prefs.getFloat("cameraZoom", 1f)
+        Globals.cam.position.set(x, y, 0f)
+        Globals.cam.zoom = zoom
     }
 }

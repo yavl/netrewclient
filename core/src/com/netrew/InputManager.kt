@@ -4,12 +4,13 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.math.Vector2
+import com.netrew.game.GameSaver
 
-class InputManager(mediator: Mediator) : InputProcessor {
+class InputManager() : InputProcessor {
     private val camSpeed = 500.0f
     private val dragOld = Vector2()
     private val dragNew = Vector2()
-    private val cam = mediator.camera()
+    private val cam = Globals.cam
 
     override fun keyDown(keycode: Int): Boolean {
         return false
@@ -61,13 +62,9 @@ class InputManager(mediator: Mediator) : InputProcessor {
             cam.translate(0f, camSpeed * cam.zoom * dt, 0f)
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            val gameSaver = GameSaver()
+            gameSaver.saveSettings()
             Gdx.app.exit()
-
-            val prefs = Gdx.app.getPreferences("NetrewPreferences")
-            prefs.putFloat("cameraPosX", cam.position.x)
-            prefs.putFloat("cameraPosY", cam.position.y)
-            prefs.putFloat("cameraZoom", cam.zoom)
-            prefs.flush()
         }
 
         if (Gdx.input.justTouched()) {

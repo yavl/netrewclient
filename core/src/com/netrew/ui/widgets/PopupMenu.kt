@@ -16,7 +16,10 @@ import com.netrew.game.components.Mappers
 import com.rafaskoberg.gdx.typinglabel.TypingConfig
 import com.rafaskoberg.gdx.typinglabel.TypingLabel
 import ktx.actors.alpha
-import ktx.scene2d.*
+import ktx.scene2d.KTableWidget
+import ktx.scene2d.scene2d
+import ktx.scene2d.table
+import ktx.scene2d.verticalGroup
 
 class PopupMenu() : Group() {
     private val drawableBg: TextureRegionDrawable
@@ -40,7 +43,7 @@ class PopupMenu() : Group() {
         }
         addActor(table)
 
-        val labelStyle = Label.LabelStyle(Globals.defaultFont, Color.WHITE)
+        val labelStyle = Label.LabelStyle(Globals.Fonts.defaultFont, Color.WHITE)
         val nameLabel = Label("", labelStyle)
         nameLabel.name = "nameLabel"
 

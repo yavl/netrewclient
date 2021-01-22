@@ -24,7 +24,12 @@ import com.netrew.game.pathfinding.TiledNode.Companion.TILE_TREE
 import ktx.actors.onClick
 import ktx.math.minus
 
-class World(val mediator: Mediator, val engine: Engine) {
+/**
+ * World class.
+ *
+ * This class represents game world, where new entities are created
+ */
+class World(val engine: Engine) {
     companion object {
         const val TILE_SIZE = 32f
     }
@@ -37,27 +42,27 @@ class World(val mediator: Mediator, val engine: Engine) {
     lateinit var tileTexture: Texture
     lateinit var worldMap: FlatTiledGraph
     lateinit var terrainTexture: Texture
-    val gameSaver = GameSaver(engine, this)
+    val gameSaver = GameSaver()
     val path =  TiledSmoothableGraphPath<FlatTiledNode>()
     val heuristic = TiledManhattanDistance<FlatTiledNode>()
     lateinit var pathfinder: IndexedAStarPathFinder<FlatTiledNode>
     lateinit var pathSmoother: PathSmoother<FlatTiledNode, Vector2>
 
     fun create() {
-        characterTexture = mediator.assets().get<Texture>("gfx/circle.png")
+        characterTexture = Globals.assets.get<Texture>("gfx/circle.png")
         characterTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-        treeTexture = mediator.assets().get<Texture>("gfx/tree.png")
+        treeTexture = Globals.assets.get<Texture>("gfx/tree.png")
         treeTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-        houseTexture = mediator.assets().get<Texture>("gfx/house.png")
+        houseTexture = Globals.assets.get<Texture>("gfx/house.png")
         houseTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
-        val heightmapTexture = mediator.assets().get<Texture>("maps/europe/heightmap.png")
+        val heightmapTexture = Globals.assets.get<Texture>("maps/europe/heightmap.png")
         if (!heightmapTexture.textureData.isPrepared) {
             heightmapTexture.textureData.prepare()
         }
         heightmapPixmap = heightmapTexture.textureData.consumePixmap()
 
-        terrainTexture = mediator.assets().get<Texture>("maps/europe/terrain.png")
+        terrainTexture = Globals.assets.get<Texture>("maps/europe/terrain.png")
         createTerrain()
     }
 
@@ -78,7 +83,7 @@ class World(val mediator: Mediator, val engine: Engine) {
             }
         }
         entity.add(sprite)
-        mediator.stage().addActor(Mappers.sprite.get(entity).image)
+        Globals.stage.addActor(Mappers.sprite.get(entity).image)
 
         engine.addEntity(entity)
 
@@ -90,10 +95,10 @@ class World(val mediator: Mediator, val engine: Engine) {
         run {
             for (x in 0 until FlatTiledGraph.sizeX) {
                 for (y in 0 until FlatTiledGraph.sizeY) {
-                    val label = Label(worldMap.getNode(x, y).type.toString(), mediator.skin())
+                    val label = Label(worldMap.getNode(x, y).type.toString(), Globals.skin())
                     label.setPosition(x * TILE_SIZE, y * TILE_SIZE)
                     if (worldMap.getNode(x, y).type == 1)
-                        mediator.stage().addActor(label)
+                        Globals.stage.addActor(label)
                 }
             }
         }*/
@@ -137,17 +142,17 @@ class World(val mediator: Mediator, val engine: Engine) {
             }
         }
         entity.add(sprite)
-        mediator.stage().addActor(Mappers.sprite.get(entity).image)
+        Globals.stage.addActor(Mappers.sprite.get(entity).image)
 
         engine.addEntity(entity)
     }
 
-    fun createCharacter(pos: Vector2, color: Color = Color(1f, 1f, 1f, 1f)) {
+    fun createCharacter(pos: Vector2, color: Color = Color(1f, 1f, 1f, 1f), characterComponent: CharacterComponent = engine.createComponent(CharacterComponent::class.java), velocityComponent: VelocityComponent = engine.createComponent(VelocityComponent::class.java)) {
         val entity = engine.createEntity()
 
         val nameAssigner = NameAssigner("names.txt")
-        val characterComponent = engine.createComponent(CharacterComponent::class.java)
-        characterComponent.name = nameAssigner.getUnassignedName()
+        if (characterComponent.name == "default")
+            characterComponent.name = nameAssigner.getUnassignedName()
         entity.add(characterComponent)
 
         val transform = engine.createComponent(TransformComponent::class.java)
@@ -169,26 +174,26 @@ class World(val mediator: Mediator, val engine: Engine) {
             setOrigin(Align.center)
             onClick {
                 Globals.clickedCharacter = entity
-                mediator.console().log("${characterComponent.name}: ${transform.pos.x}; ${transform.pos.y}")
+                Globals.console.log("${characterComponent.name}: ${transform.pos.x}; ${transform.pos.y}")
             }
             onHover {
-                mediator.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
+                Globals.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
             }
             onHoverEnd {
-                mediator.hidePopupMenu()
+                Globals.hidePopupMenu()
             }
         }
-        mediator.stage().addActor(sprite.image)
+        Globals.stage.addActor(sprite.image)
         entity.add(sprite)
 
         val nameLabel = engine.createComponent(LabelComponent::class.java)
         with(nameLabel.label) {
             setText(nameAssigner.getUnassignedName())
             onHover {
-                mediator.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
+                Globals.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
             }
             onHoverEnd {
-                mediator.hidePopupMenu()
+                Globals.hidePopupMenu()
             }
         }
         entity.add(nameLabel)
@@ -196,7 +201,7 @@ class World(val mediator: Mediator, val engine: Engine) {
         group.isTransform = true
         group.addActor(sprite.image)
         group.addActor(nameLabel.label)
-        mediator.stage().addActor(group)
+        Globals.stage.addActor(group)
 
         val shapeRenderer = engine.createComponent(ShapeRendererComponent::class.java)
         entity.add(shapeRenderer)
@@ -220,10 +225,10 @@ class World(val mediator: Mediator, val engine: Engine) {
             setScale(transform.scale.x, transform.scale.y)
             setOrigin(Align.center)
             onClick {
-                mediator.console().log("${transform.pos.x}, ${transform.pos.y}")
+                Globals.console.log("${transform.pos.x}, ${transform.pos.y}")
             }
         }
-        mediator.stage().addActor(sprite.image)
+        Globals.stage.addActor(sprite.image)
         entity.add(sprite)
 
         val treeComponent = engine.createComponent(TreeComponent::class.java)
@@ -232,7 +237,7 @@ class World(val mediator: Mediator, val engine: Engine) {
         engine.addEntity(entity)
     }
 
-    fun createHouse(x: Int, y: Int) {
+    fun createHouse(x: Int, y: Int, houseComponent: HouseComponent = engine.createComponent(HouseComponent::class.java)) {
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
@@ -249,13 +254,12 @@ class World(val mediator: Mediator, val engine: Engine) {
             setScale(transform.scale.x, transform.scale.y)
             setOrigin(Align.center)
             onClick {
-                mediator.console().log("${transform.pos.x}, ${transform.pos.y}")
+                Globals.console.log("${transform.pos.x}, ${transform.pos.y}")
             }
         }
-        mediator.stage().addActor(sprite.image)
+        Globals.stage.addActor(sprite.image)
         entity.add(sprite)
 
-        val houseComponent = engine.createComponent(HouseComponent::class.java)
         entity.add(houseComponent)
 
         engine.addEntity(entity)
@@ -285,13 +289,13 @@ class World(val mediator: Mediator, val engine: Engine) {
                 val targetPos = each.toWorldPos(TILE_SIZE)
                 targetPos.set(targetPos.x + offsetXY, targetPos.y + offsetXY)
                 characterComponent.targetPositions.add(targetPos)
-                mediator.console().log("${each.toWorldPos(TILE_SIZE).x}, ${each.toWorldPos(TILE_SIZE).y}")
+                Globals.console.log("${each.toWorldPos(TILE_SIZE).x}, ${each.toWorldPos(TILE_SIZE).y}")
             }
         }
     }
 
     fun saveGame() {
-        gameSaver.save("autosave.bin")
+        gameSaver.save("autosave.bin", engine)
     }
 
     fun loadGame() {
