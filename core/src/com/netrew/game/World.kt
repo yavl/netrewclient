@@ -18,7 +18,6 @@ import com.netrew.game.components.complex.CharacterComponent
 import com.netrew.game.components.complex.HouseComponent
 import com.netrew.game.components.complex.TreeComponent
 import com.netrew.game.pathfinding.*
-import com.netrew.game.pathfinding.TiledNode.Companion.TILE_TREE
 import ktx.actors.onClick
 import ktx.math.minus
 
@@ -107,33 +106,29 @@ class World(val engine: Engine) {
         /// spawn trees according to heightmap
         for (x in 0 until FlatTiledGraph.sizeX) {
             for (y in 0 until FlatTiledGraph.sizeY) {
-                if (worldMap[x, y].type == TILE_TREE) {
+                if (worldMap[x, y].type == TiledNode.TILE_TREE) {
                     createTree(x, y)
                 }
             }
         }
 
+        /// spawn trees according to population map
         val populationTexture = Globals.assets.get<Texture>("maps/europe/population.png")
         if (!populationTexture.textureData.isPrepared) {
             populationTexture.textureData.prepare()
         }
         val populationPixmap = populationTexture.textureData.consumePixmap()
-        val flipped = Pixmap(FlatTiledGraph.sizeX, FlatTiledGraph.sizeY, Pixmap.Format.RGBA8888)
-        for (x in 0 until FlatTiledGraph.sizeX) {
-            for (y in 0 until FlatTiledGraph.sizeY) {
-                flipped.drawPixel(x, y, populationPixmap.getPixel(x, FlatTiledGraph.sizeY - 1 - y))
-            }
-        }
-
-        for (x in 0 until flipped.width) {
-            for (y in 0 until flipped.height) {
-                val color = Color(flipped.getPixel(x, y))
+        populationPixmap.flipY()
+        for (x in 0 until populationPixmap.width) {
+            for (y in 0 until populationPixmap.height) {
+                val color = Color(populationPixmap.getPixel(x, y))
                 if (color != Color.BLACK) {
                     val pos = worldMap[x, y].toWorldPos(TILE_SIZE)
                     createCharacter(pos, color)
                 }
             }
         }
+        populationPixmap.dispose()
     }
 
     fun createCharacter(pos: Vector2, color: Color = Color(1f, 1f, 1f, 1f), characterComponent: CharacterComponent = engine.createComponent(CharacterComponent::class.java), velocityComponent: VelocityComponent = engine.createComponent(VelocityComponent::class.java)) {
@@ -200,6 +195,7 @@ class World(val engine: Engine) {
     }
 
     fun createTree(x: Int, y: Int, treeComponent: TreeComponent = engine.createComponent(TreeComponent::class.java)) {
+        worldMap[x, y].type = TiledNode.TILE_TREE
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
@@ -228,6 +224,7 @@ class World(val engine: Engine) {
     }
 
     fun createHouse(x: Int, y: Int, houseComponent: HouseComponent = engine.createComponent(HouseComponent::class.java)) {
+        worldMap[x, y].type = TiledNode.TILE_BUILDING
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)

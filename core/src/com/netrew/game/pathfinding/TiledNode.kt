@@ -25,13 +25,13 @@ import com.badlogic.gdx.utils.Array
  * @author davebaol
 </N> */
 abstract class TiledNode<N : TiledNode<N>?>(
-        /** The x coordinate of this tile  */
+    /** The x coordinate of this tile  */
         var x: Int,
-        /** The y coordinate of this tile  */
+    /** The y coordinate of this tile  */
         var y: Int,
-        /** The type of this tile, see [.TILE_EMPTY], [.TILE_FLOOR] and [.TILE_WALL]  */
-        open val type: Int,
-        var connections: Array<Connection<FlatTiledNode?>>) {
+    /** The type of this tile, see [.TILE_EMPTY], [.TILE_FLOOR] and [.TILE_WALL]  */
+        open var type: Int,
+    var connections: Array<Connection<FlatTiledNode?>>) {
     abstract val index: Int
 
     companion object {
@@ -44,10 +44,10 @@ abstract class TiledNode<N : TiledNode<N>?>(
         /// A constant representing a tree
         const val TILE_TREE = 2
 
-        /// A constant representing a ground where plants be able to grow
-        const val TILE_GROUND = 3
+        /// A constant representing a field where plants be able to grow
+        const val TILE_FIELD = 3
 
-        /// A constant representing a house
-        const val TILE_HOUSE = 4
+        /// A constant representing a building
+        const val TILE_BUILDING = 4
     }
 }

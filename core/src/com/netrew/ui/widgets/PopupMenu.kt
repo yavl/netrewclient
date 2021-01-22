@@ -81,7 +81,7 @@ class PopupMenu() : Group(), Disposable {
     }
 
     fun update(entity: Entity) {
-        if (Mappers.character.get(entity) == null)
+        if (Mappers.character.get(entity) == null) // todo fix why is characterComponent null on nameLabel hover
             return
         val characterName = Mappers.character.get(entity).name
         val characterAge = 0
