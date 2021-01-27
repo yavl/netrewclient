@@ -63,7 +63,7 @@ class Main : Game() {
 
         engine.addSystem(MovementSystem())
         engine.addSystem(StageRenderingSystem(stage, 0))
-        engine.addSystem(TerritoryRenderingSystem())
+        engine.addSystem(BordersDrawingSystem())
         engine.addSystem(SpriteRenderingSystem())
         engine.addSystem(HouseSpriteRenderingSystem())
         engine.addSystem(TreeSpriteRenderingSystem())
@@ -82,8 +82,9 @@ class Main : Game() {
         batch.projectionMatrix = cam.combined
 
         val dt = Gdx.graphics.deltaTime
-        engine.update(dt)
         inputManager.handleInput(dt)
+        engine.update(dt)
+        Globals.world.update(dt)
         super.render()
 
         Globals.console.draw()

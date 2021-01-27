@@ -136,6 +136,8 @@ object Globals {
 }
 
 /// Kotlin extensions below
+
+/** Mouse pos to world pos */
 fun Vector2.toWorldPos(): Vector2 {
     val cam = Globals.cam
     val worldPos = Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)

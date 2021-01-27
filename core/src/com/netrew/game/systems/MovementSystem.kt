@@ -3,7 +3,6 @@ package com.netrew.game.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.math.Interpolation
 import com.netrew.Globals
 import com.netrew.game.components.complex.CharacterComponent
 import com.netrew.game.components.Mappers
@@ -12,9 +11,6 @@ import com.netrew.game.components.VelocityComponent
 import ktx.math.minus
 
 class MovementSystem : IteratingSystem(Family.all(TransformComponent::class.java, VelocityComponent::class.java, CharacterComponent::class.java).get()) {
-    val ease = Interpolation.pow2
-    var elapsed = 0f
-
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val transform = Mappers.transform.get(entity)
         val velocity = Mappers.velocity.get(entity)
@@ -37,7 +33,6 @@ class MovementSystem : IteratingSystem(Family.all(TransformComponent::class.java
                 transform.pos.set(character.targetPosition)
                 character.hasTargetPosition = false
                 velocity.speed = 0f
-                elapsed = 0f
                 character.targetPositions.clear()
             }
         }

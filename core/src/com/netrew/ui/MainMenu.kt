@@ -14,9 +14,12 @@ import com.netrew.game.components.complex.TreeComponent
 import com.netrew.hasComponent
 import com.netrew.ui.windows.CharacterPopupWindow
 import com.netrew.ui.windows.TreePopupWindow
+import ktx.actors.onClick
 import ktx.actors.txt
+import ktx.scene2d.horizontalGroup
 import ktx.scene2d.scene2d
 import ktx.scene2d.scrollPane
+import ktx.scene2d.textButton
 
 class MainMenu : Screen {
     private val stage = Globals.uiStage
@@ -33,6 +36,7 @@ class MainMenu : Screen {
 
     override fun show() {
         showDebugWindow()
+        showChangeTimescaleButtons()
     }
 
     override fun render(delta: Float) {
@@ -78,6 +82,23 @@ class MainMenu : Screen {
         scroll.style.background = null
         scroll.touchable = Touchable.disabled
         stage.addActor(scroll)
+    }
+
+    fun showChangeTimescaleButtons() {
+        val group = scene2d.horizontalGroup {
+            textButton("Timescale 1x").onClick {
+                Globals.console.execCommand("timescale 1")
+            }
+            textButton("Timescale 10x").onClick {
+                Globals.console.execCommand("timescale 10")
+            }
+            textButton("Timescale 20x").onClick {
+                Globals.console.execCommand("timescale 20")
+            }
+        }
+        group.setSize(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
+        group.align(Align.topRight)
+        stage.addActor(group)
     }
 
     fun appendDebugText(text: String) {

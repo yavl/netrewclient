@@ -6,8 +6,10 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.pfa.PathSmoother
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.ui.Image
@@ -43,6 +45,8 @@ class World(val engine: Engine) {
     val heuristic = TiledManhattanDistance<FlatTiledNode>()
     lateinit var pathfinder: IndexedAStarPathFinder<FlatTiledNode>
     lateinit var pathSmoother: PathSmoother<FlatTiledNode, Vector2>
+    lateinit var coloredTiles: Array<Array<Color?>>
+    val shapeRenderer = ShapeRenderer()
 
     fun create() {
         characterTexture = Globals.assets.get<Texture>("gfx/circle.png")
@@ -61,6 +65,30 @@ class World(val engine: Engine) {
 
         terrainTexture = Globals.assets.get<Texture>("maps/europe/terrain.png")
         createTerrain()
+        coloredTiles = Array(512) { row ->
+            Array(512) { col ->
+                null
+            }
+        }
+    }
+
+    fun update(deltaTime: Float) {
+        for (x in 0 until 512) {
+            for (y in 0 until 512) {
+                if (coloredTiles[x][y] == null)
+                    continue
+                if (coloredTiles[x][y]!!.a <= 0.1f)
+                    continue
+                val color = coloredTiles[x][y]
+                Gdx.gl.glEnable(GL20.GL_BLEND)
+                Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+                shapeRenderer.projectionMatrix = Globals.cam.combined
+                shapeRenderer.setColor(color)
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+                shapeRenderer.rect(worldMap[x, y].toWorldPos(TILE_SIZE).x, worldMap[x, y].toWorldPos(TILE_SIZE).y, World.TILE_SIZE, World.TILE_SIZE)
+                shapeRenderer.end()
+            }
+        }
     }
 
     fun createTerrain() {
