@@ -1,14 +1,14 @@
-package com.netrew.ui.widgets
+package com.netrew.ui.windows
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Disposable
@@ -17,70 +17,48 @@ import com.netrew.game.components.Mappers
 import com.rafaskoberg.gdx.typinglabel.TypingConfig
 import com.rafaskoberg.gdx.typinglabel.TypingLabel
 import ktx.actors.alpha
-import ktx.scene2d.KTableWidget
 import ktx.scene2d.scene2d
-import ktx.scene2d.table
 import ktx.scene2d.verticalGroup
 
-class PopupMenu() : Group(), Disposable {
-    private val table: KTableWidget
+open class PopupWindow : Table(), Disposable {
+    /** Vertical space between window elements */
+    protected val verticalSpace = 10f
+    protected val labelStyle = Label.LabelStyle(Globals.Fonts.defaultFont, Color.WHITE)
     private val drawableBgTexture: Texture
 
     init {
         TypingConfig.DEFAULT_SPEED_PER_CHAR = 0f
         alpha = 0f
 
-        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color(0f, 0f, 0f, 0.4f));
-        pixmap.fill();
+        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
+        pixmap.setColor(Color(0f, 0f, 0f, 0.4f))
+        pixmap.fill()
         drawableBgTexture = Texture(pixmap)
-        val drawableBg = TextureRegionDrawable(TextureRegion(drawableBgTexture));
+        val drawableBg = TextureRegionDrawable(TextureRegion(drawableBgTexture))
         pixmap.dispose()
 
-        table = scene2d.table {
-            setBackground(drawableBg)
-            pad(4f)
-            setSize(300f, 200f)
-            setY(getY() - height)
-            align(Align.center)
-        }
-        addActor(table)
-
-        val labelStyle = Label.LabelStyle(Globals.Fonts.defaultFont, Color.WHITE)
-        val nameLabel = Label("", labelStyle)
-        nameLabel.name = "nameLabel"
-
-        val ageLabel = Label("", labelStyle)
-        ageLabel.name = "ageLabel"
-
-        val healthss = Globals.bundle.format("popup.health.wounded")
-        val healthString = Globals.bundle.format("popup.health", healthss, "{COLOR=RED}{SHAKE}")
-        val woundedLabel = TypingLabel(healthString, labelStyle)
-        woundedLabel.name = "woundedLabel"
-        val verticalGroup = verticalGroup {
-            addActor(nameLabel)
-            space(10f)
-            addActor(ageLabel)
-            space(10f)
-            addActor(woundedLabel)
-        }
-        table.add(verticalGroup)
+        background = drawableBg
+        pad(4f)
+        setSize(300f, 200f)
+        y -= height
+        align(Align.center)
     }
 
-    fun show() {
+    open fun show() {
         if (hasActions())
             clearActions()
         addAction(Actions.fadeIn(0.1f))
     }
 
-    fun hide() {
+    open fun hide() {
         val actions = SequenceAction()
         actions.addAction(Actions.fadeOut(0.2f))
         actions.addAction(Actions.visible(false))
         addAction(actions)
     }
 
-    fun update(entity: Entity) {
+    /** update label texts */
+    open fun update(entity: Entity) {
         if (Mappers.character.get(entity) == null) // todo fix why is characterComponent null on nameLabel hover
             return
         val characterName = Mappers.character.get(entity).name

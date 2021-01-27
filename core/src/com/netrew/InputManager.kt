@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.math.Vector2
 import com.netrew.game.GameSaver
+import com.badlogic.gdx.math.Vector3
 
 class InputManager() : InputProcessor {
     private val camSpeed = 500.0f
@@ -42,8 +43,19 @@ class InputManager() : InputProcessor {
 
     override fun scrolled(amountX: Float, amountY: Float): Boolean {
         when (amountY) {
-            1f -> cam.zoom += 0.15f * cam.zoom
-            -1f -> cam.zoom -= 0.15f * cam.zoom
+            1f -> {
+                cam.zoom += 0.15f * cam.zoom
+                cam.update()
+            }
+            -1f -> {
+                val screenCoords = Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)
+                val worldCoordsBefore: Vector3 = cam.unproject(Vector3(screenCoords))
+                cam.zoom -= 0.15f * cam.zoom
+                cam.update()
+                val worldCoordsAfter: Vector3 = cam.unproject(screenCoords)
+                val diff: Vector3 = Vector3(worldCoordsAfter).sub(worldCoordsBefore)
+                cam.position.sub(diff)
+            }
         }
         return false
     }

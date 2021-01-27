@@ -26,11 +26,11 @@ import com.badlogic.gdx.utils.Array
 </N> */
 abstract class TiledNode<N : TiledNode<N>?>(
     /** The x coordinate of this tile  */
-        var x: Int,
+        val x: Int,
     /** The y coordinate of this tile  */
-        var y: Int,
+        val y: Int,
     /** The type of this tile, see [.TILE_EMPTY], [.TILE_FLOOR] and [.TILE_WALL]  */
-        open var type: Int,
+        var type: Int,
     var connections: Array<Connection<FlatTiledNode?>>) {
     abstract val index: Int
 

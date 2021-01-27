@@ -58,7 +58,7 @@ class Main : Game() {
         Scene2DSkin.defaultSkin = Globals.skin
         Globals.createConsole()
 
-        menu = MainMenu(this)
+        menu = MainMenu()
         setScreen(menu)
 
         engine.addSystem(MovementSystem())

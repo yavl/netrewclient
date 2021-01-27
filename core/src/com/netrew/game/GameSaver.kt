@@ -16,6 +16,9 @@ import com.netrew.game.components.complex.TreeComponent
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
+/**
+ * A class to save and load game progress and settings
+ */
 class GameSaver() {
     val kryo = Kryo()
 

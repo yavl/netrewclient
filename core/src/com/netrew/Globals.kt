@@ -1,5 +1,7 @@
 package com.netrew
 
+import com.badlogic.ashley.core.Component
+import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
@@ -109,12 +111,12 @@ object Globals {
         mainMenu.appendDebugText(text)
     }
 
-    fun showPopupMenu(mouseX: Float, mouseY: Float, entity: Entity) {
-        mainMenu.showPopupMenu(mouseX, mouseY, entity)
+    fun showPopupWindow(mouseX: Float, mouseY: Float, entity: Entity) {
+        mainMenu.showPopupWindow(mouseX, mouseY, entity)
     }
 
-    fun hidePopupMenu() {
-        mainMenu.hidePopupMenu()
+    fun hidePopupWindow() {
+        mainMenu.hidePopupWindow()
     }
 
     fun generateFonts() {
@@ -155,6 +157,10 @@ fun Pixmap.flipY() {
         }
     }
     temp.dispose()
+}
+
+fun <T : Component> Entity.hasComponent(componentType: Class<T>): Boolean {
+    return ComponentMapper.getFor(componentType).get(this) != null
 }
 
 inline fun <T : Actor> T.onHover(crossinline listener: T.() -> Unit): ClickListener {

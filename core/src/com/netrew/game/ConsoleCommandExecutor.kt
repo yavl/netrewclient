@@ -48,7 +48,7 @@ class ConsoleCommandExecutor() : CommandExecutor() {
         console.log(Globals.VERSION)
     }
 
-    @ConsoleDoc(description = "Show cursor pos (x, y).")
+    @ConsoleDoc(description = "Show cursor world pos (x, y).")
     fun cursor() {
         console.log("${Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos()}")
     }
@@ -59,13 +59,13 @@ class ConsoleCommandExecutor() : CommandExecutor() {
     }
 
     @ConsoleDoc(description = "Spawn tree at cursor pos.")
-    fun spawntree() {
+    fun tree() {
         val node = Globals.world.worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), World.TILE_SIZE)
         Globals.world.createTree(node.x, node.y)
     }
 
     @ConsoleDoc(description = "Spawn house at cursor pos.")
-    fun spawnhouse() {
+    fun house() {
         val node = Globals.world.worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), World.TILE_SIZE)
         Globals.world.createHouse(node.x, node.y)
     }

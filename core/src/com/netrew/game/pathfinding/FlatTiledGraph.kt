@@ -57,16 +57,33 @@ class FlatTiledGraph : TiledGraph<FlatTiledNode?> {
         for (x in 0 until sizeX) {
             val idx = x * sizeY
             for (y in 0 until sizeY) {
-                val n = nodes[idx + y]
+                val node = nodes[idx + y]
+                node.connections.clear()
                 if (x > 0)
-                    addConnection(n, -1, 0)
+                    addConnection(node, -1, 0)
                 if (y > 0)
-                    addConnection(n, 0, -1)
+                    addConnection(node, 0, -1)
                 if (x < sizeX - 1)
-                    addConnection(n, 1, 0)
+                    addConnection(node, 1, 0)
                 if (y < sizeY - 1)
-                    addConnection(n, 0, 1)
+                    addConnection(node, 0, 1)
             }
+        }
+    }
+
+    fun setNodeType(x: Int, y: Int, type: Int) {
+        val node = get(x, y)
+        node.type = type
+        node.connections.clear()
+        if (type == TILE_FLOOR) {
+            if (x > 0)
+                addConnection(node, -1, 0)
+            if (y > 0)
+                addConnection(node, 0, -1)
+            if (x < sizeX - 1)
+                addConnection(node, 1, 0)
+            if (y < sizeY - 1)
+                addConnection(node, 0, 1)
         }
     }
 

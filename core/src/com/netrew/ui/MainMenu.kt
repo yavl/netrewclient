@@ -9,21 +9,26 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.utils.Align
 import com.netrew.Globals
-import com.netrew.Main
-import com.netrew.ui.widgets.PopupMenu
+import com.netrew.game.components.complex.CharacterComponent
+import com.netrew.game.components.complex.TreeComponent
+import com.netrew.hasComponent
+import com.netrew.ui.windows.CharacterPopupWindow
+import com.netrew.ui.windows.TreePopupWindow
 import ktx.actors.txt
 import ktx.scene2d.scene2d
 import ktx.scene2d.scrollPane
 
-class MainMenu(private val main: Main) : Screen {
+class MainMenu : Screen {
     private val stage = Globals.uiStage
     lateinit var debugLabel: Label
     lateinit var scroll: ScrollPane
-    val popupMenu: PopupMenu = PopupMenu()
+    val characterPopupWindow = CharacterPopupWindow()
+    val treePopupWindow = TreePopupWindow()
 
     init {
         Globals.mainMenu = this
-        stage.addActor(popupMenu)
+        stage.addActor(characterPopupWindow)
+        stage.addActor(treePopupWindow)
     }
 
     override fun show() {
@@ -54,7 +59,7 @@ class MainMenu(private val main: Main) : Screen {
     }
 
     override fun dispose() {
-        popupMenu.dispose()
+        characterPopupWindow.dispose()
     }
 
     fun showDebugWindow() {
@@ -80,14 +85,22 @@ class MainMenu(private val main: Main) : Screen {
         scroll.scrollTo(0f, scroll.maxHeight, 0f, 0f)
     }
 
-    fun showPopupMenu(mouseX: Float, mouseY: Float, entity: Entity) {
-        popupMenu.isVisible = true
-        popupMenu.show()
-        popupMenu.update(entity)
-        popupMenu.setPosition(mouseX, Gdx.graphics.height.toFloat() - mouseY)
+    fun showPopupWindow(mouseX: Float, mouseY: Float, entity: Entity) {
+        if (entity.hasComponent(CharacterComponent::class.java)) {
+            characterPopupWindow.isVisible = true
+            characterPopupWindow.show()
+            characterPopupWindow.update(entity)
+            characterPopupWindow.setPosition(mouseX, Gdx.graphics.height.toFloat() - mouseY)
+        } else if (entity.hasComponent(TreeComponent::class.java)) {
+            treePopupWindow.isVisible = true
+            treePopupWindow.show()
+            treePopupWindow.update(entity)
+            treePopupWindow.setPosition(mouseX, Gdx.graphics.height.toFloat() - mouseY)
+        }
     }
 
-    fun hidePopupMenu() {
-        popupMenu.hide()
+    fun hidePopupWindow() {
+        characterPopupWindow.hide()
+        treePopupWindow.hide()
     }
 }

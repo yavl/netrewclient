@@ -20,6 +20,7 @@ import com.netrew.game.components.complex.TreeComponent
 import com.netrew.game.pathfinding.*
 import ktx.actors.onClick
 import ktx.math.minus
+import ktx.math.plus
 
 /**
  * World class.
@@ -123,7 +124,9 @@ class World(val engine: Engine) {
             for (y in 0 until populationPixmap.height) {
                 val color = Color(populationPixmap.getPixel(x, y))
                 if (color != Color.BLACK) {
-                    val pos = worldMap[x, y].toWorldPos(TILE_SIZE)
+                    var pos = worldMap[x, y].toWorldPos(TILE_SIZE)
+                    val offsetXY = TILE_SIZE / 2f
+                    pos += offsetXY
                     createCharacter(pos, color)
                 }
             }
@@ -161,10 +164,10 @@ class World(val engine: Engine) {
                 Globals.console.log("${characterComponent.name}: ${transform.pos.x}; ${transform.pos.y}")
             }
             onHover {
-                Globals.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
+                Globals.showPopupWindow(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
             }
             onHoverEnd {
-                Globals.hidePopupMenu()
+                Globals.hidePopupWindow()
             }
         }
         Globals.stage.addActor(sprite.image)
@@ -174,10 +177,10 @@ class World(val engine: Engine) {
         with(nameLabel.label) {
             setText(characterComponent.name)
             onHover {
-                Globals.showPopupMenu(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
+                Globals.showPopupWindow(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
             }
             onHoverEnd {
-                Globals.hidePopupMenu()
+                Globals.hidePopupWindow()
             }
         }
         entity.add(nameLabel)
@@ -195,7 +198,7 @@ class World(val engine: Engine) {
     }
 
     fun createTree(x: Int, y: Int, treeComponent: TreeComponent = engine.createComponent(TreeComponent::class.java)) {
-        worldMap[x, y].type = TiledNode.TILE_TREE
+        worldMap.setNodeType(x, y, TiledNode.TILE_TREE)
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
@@ -213,18 +216,22 @@ class World(val engine: Engine) {
             onClick {
                 Globals.console.log("${transform.pos.x}, ${transform.pos.y}")
             }
+            onHover {
+                Globals.showPopupWindow(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), entity)
+            }
+            onHoverEnd {
+                Globals.hidePopupWindow()
+            }
         }
         Globals.stage.addActor(sprite.image)
         entity.add(sprite)
-
-        val treeComponent = engine.createComponent(TreeComponent::class.java)
         entity.add(treeComponent)
 
         engine.addEntity(entity)
     }
 
     fun createHouse(x: Int, y: Int, houseComponent: HouseComponent = engine.createComponent(HouseComponent::class.java)) {
-        worldMap[x, y].type = TiledNode.TILE_BUILDING
+        worldMap.setNodeType(x, y, TiledNode.TILE_BUILDING)
         val entity = engine.createEntity()
 
         val transform = engine.createComponent(TransformComponent::class.java)
@@ -246,7 +253,6 @@ class World(val engine: Engine) {
         }
         Globals.stage.addActor(sprite.image)
         entity.add(sprite)
-
         entity.add(houseComponent)
 
         engine.addEntity(entity)
@@ -267,8 +273,7 @@ class World(val engine: Engine) {
             characterComponent.hasTargetPosition = true
             characterComponent.targetPosition = path[0].toWorldPos(TILE_SIZE)
             val offsetXY = TILE_SIZE / 2f
-            characterComponent.targetPosition.x += offsetXY
-            characterComponent.targetPosition.y += offsetXY
+            characterComponent.targetPosition += offsetXY
             velocityComponent.direction = (characterComponent.targetPosition - transformComponent.pos).nor()
 
             for (i in 1 until path.getCount()) {
@@ -291,6 +296,7 @@ class World(val engine: Engine) {
         Globals.clickedCharacter = null
     }
 
+    /** clear in-game interactive entities */
     fun clearEntities() {
         val family = Family.one(CharacterComponent::class.java, HouseComponent::class.java, TreeComponent::class.java)
 
