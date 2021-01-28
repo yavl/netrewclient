@@ -18,18 +18,18 @@ class BordersDrawingSystem : IteratingSystem(Family.all(SpriteComponent::class.j
 
         val color = Color(sprite.image.color)
         val node = Globals.world.worldMap.getNodeByPosition(transform.pos, World.TILE_SIZE)
-        if (Globals.world.coloredTiles[node.x][node.y] == null) {
-            Globals.world.coloredTiles[node.x][node.y] = color
-            Globals.world.coloredTiles[node.x][node.y]!!.a = 0f
+        if (Globals.world.coloredBorders[node.x][node.y] == null) {
+            Globals.world.coloredBorders[node.x][node.y] = color
+            Globals.world.coloredBorders[node.x][node.y]!!.a = 0f
             // todo add radius
         }
         else {
-            val alpha = Globals.world.coloredTiles[node.x][node.y]!!.a
+            val alpha = Globals.world.coloredBorders[node.x][node.y]!!.a
             if (alpha <= 1f) {
-                Globals.world.coloredTiles[node.x][node.y]!!.a += deltaTime * 0.1f * Globals.timeScale
+                Globals.world.coloredBorders[node.x][node.y]!!.a += deltaTime * 0.1f * Globals.timeScale
             }
             else {
-                Globals.world.coloredTiles[node.x][node.y]!!.a = 1f
+                Globals.world.coloredBorders[node.x][node.y]!!.a = 1f
             }
         }
     }

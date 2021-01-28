@@ -84,4 +84,21 @@ class ConsoleCommandExecutor() : CommandExecutor() {
     fun clear() {
         Globals.world.clearEntities()
     }
+
+    @ConsoleDoc(description = "Toggle borders layer visibility.")
+    fun borders() {
+        Globals.world.showBorders = !Globals.world.showBorders
+        console.log("showBorders is set to ${Globals.world.showBorders}")
+    }
+
+    @ConsoleDoc(description = "Execute commands from file.")
+    fun exec(path: String) {
+        val file = Gdx.files.internal(path)
+        val contents = file.readString()
+        val commands = contents.split("\\r?\\n")
+        for (command in commands) {
+            console.execCommand(command)
+        }
+        console.log("All commands from <$path> were executed.")
+    }
 }

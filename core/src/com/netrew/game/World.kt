@@ -3,11 +3,8 @@ package com.netrew.game
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.ai.pfa.PathSmoother
-import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
@@ -33,20 +30,15 @@ class World(val engine: Engine) {
     companion object {
         const val TILE_SIZE = 32f
     }
-
     lateinit var characterTexture: Texture
     lateinit var treeTexture: Texture
     lateinit var houseTexture: Texture
-    lateinit var heightmapPixmap: Pixmap
     lateinit var worldMap: FlatTiledGraph
-    lateinit var terrainTexture: Texture
     val gameSaver = GameSaver()
-    val path =  TiledSmoothableGraphPath<FlatTiledNode>()
-    val heuristic = TiledManhattanDistance<FlatTiledNode>()
-    lateinit var pathfinder: IndexedAStarPathFinder<FlatTiledNode>
-    lateinit var pathSmoother: PathSmoother<FlatTiledNode, Vector2>
-    lateinit var coloredTiles: Array<Array<Color?>>
+    lateinit var pathfinder: Pathfinder
+    lateinit var coloredBorders: Array<Array<Color?>>
     val shapeRenderer = ShapeRenderer()
+    var showBorders = true
 
     fun create() {
         characterTexture = Globals.assets.get<Texture>("gfx/circle.png")
@@ -56,16 +48,8 @@ class World(val engine: Engine) {
         houseTexture = Globals.assets.get<Texture>("gfx/house.png")
         houseTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
-        val heightmapTexture = Globals.assets.get<Texture>("maps/europe/heightmap.png")
-        if (!heightmapTexture.textureData.isPrepared) {
-            heightmapTexture.textureData.prepare()
-        }
-        heightmapPixmap = heightmapTexture.textureData.consumePixmap()
-        heightmapPixmap.flipY()
-
-        terrainTexture = Globals.assets.get<Texture>("maps/europe/terrain.png")
-        createTerrain()
-        coloredTiles = Array(512) { row ->
+        createTerrain("europe")
+        coloredBorders = Array(512) { row ->
             Array(512) { col ->
                 null
             }
@@ -73,13 +57,15 @@ class World(val engine: Engine) {
     }
 
     fun update(deltaTime: Float) {
+        if (!showBorders)
+            return
         for (x in 0 until 512) {
             for (y in 0 until 512) {
-                if (coloredTiles[x][y] == null)
+                if (coloredBorders[x][y] == null)
                     continue
-                if (coloredTiles[x][y]!!.a <= 0.1f)
+                if (coloredBorders[x][y]!!.a <= 0.1f)
                     continue
-                val color = coloredTiles[x][y]
+                val color = coloredBorders[x][y]
                 Gdx.gl.glEnable(GL20.GL_BLEND)
                 Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
                 shapeRenderer.projectionMatrix = Globals.cam.combined
@@ -91,8 +77,17 @@ class World(val engine: Engine) {
         }
     }
 
-    fun createTerrain() {
+    fun createTerrain(mapName: String) {
         val entity = engine.createEntity()
+
+        val mapData = gameSaver.loadMap(mapName)
+        val terrainTexture = mapData.terrainTexture
+        val heightmapTexture = mapData.heightmapTexture
+        if (!heightmapTexture.textureData.isPrepared) {
+            heightmapTexture.textureData.prepare()
+        }
+        val heightmapPixmap = heightmapTexture.textureData.consumePixmap()
+        heightmapPixmap.flipY()
 
         val transform = engine.createComponent(TransformComponent::class.java)
         transform.pos.set(terrainTexture.width / 2f, terrainTexture.height / 2f)
@@ -115,8 +110,7 @@ class World(val engine: Engine) {
         worldMap = FlatTiledGraph()
         worldMap.init(heightmapPixmap)
         heightmapPixmap.dispose()
-        pathfinder = IndexedAStarPathFinder<FlatTiledNode>(worldMap, true)
-        pathSmoother = PathSmoother<FlatTiledNode, Vector2>(TiledRaycastCollisionDetector<FlatTiledNode?>(worldMap))
+        pathfinder = Pathfinder(worldMap)
 
         /*
         /// create TILE TYPES labels
@@ -142,7 +136,7 @@ class World(val engine: Engine) {
         }
 
         /// spawn trees according to population map
-        val populationTexture = Globals.assets.get<Texture>("maps/europe/population.png")
+        val populationTexture = mapData.populationTexture
         if (!populationTexture.textureData.isPrepared) {
             populationTexture.textureData.prepare()
         }
@@ -165,7 +159,7 @@ class World(val engine: Engine) {
     fun createCharacter(pos: Vector2, color: Color = Color(1f, 1f, 1f, 1f), characterComponent: CharacterComponent = engine.createComponent(CharacterComponent::class.java), velocityComponent: VelocityComponent = engine.createComponent(VelocityComponent::class.java)) {
         val entity = engine.createEntity()
 
-        val nameAssigner = NameAssigner("names.txt")
+        val nameAssigner = NameAssigner("languages/names.txt")
         if (characterComponent.name == "default")
             characterComponent.name = nameAssigner.getUnassignedName()
         entity.add(characterComponent)
@@ -295,9 +289,8 @@ class World(val engine: Engine) {
         val startNode = worldMap.getNodeByPosition(Vector2(transformComponent.pos.x, transformComponent.pos.y), TILE_SIZE)
         val endNode = worldMap.getNodeByPosition(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()).toWorldPos(), TILE_SIZE)
         characterComponent.targetPositions.clear()
-        path.clear()
-        if (pathfinder.searchNodePath(startNode, endNode, heuristic, path) && startNode != endNode) {
-            pathSmoother.smoothPath(path)
+        if (pathfinder.searchPath(startNode, endNode) && startNode != endNode) {
+            val path = pathfinder.path
             characterComponent.hasTargetPosition = true
             characterComponent.targetPosition = path[0].toWorldPos(TILE_SIZE)
             val offsetXY = TILE_SIZE / 2f
@@ -315,12 +308,12 @@ class World(val engine: Engine) {
     }
 
     fun saveGame() {
-        gameSaver.save("autosave.bin", engine)
+        gameSaver.save("saves/autosave.bin", engine)
     }
 
     fun loadGame() {
         clearEntities()
-        gameSaver.load("autosave.bin")
+        gameSaver.load("saves/autosave.bin")
         Globals.clickedCharacter = null
     }
 

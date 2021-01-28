@@ -42,7 +42,6 @@ class Main : Game() {
         val viewport = ScreenViewport(cam)
         Globals.createStage(viewport, batch)
         val stage = Globals.stage
-        stage.isDebugAll = true
 
         inputManager = InputManager()
         inputs.addProcessor(inputManager)
@@ -56,7 +55,6 @@ class Main : Game() {
         Globals.skin.add("default-font", Globals.Fonts.defaultFont)
         Globals.world = World(engine)
         Scene2DSkin.defaultSkin = Globals.skin
-        Globals.createConsole()
 
         menu = MainMenu()
         setScreen(menu)
@@ -70,6 +68,8 @@ class Main : Game() {
         engine.addSystem(NameLabelRenderingSystem())
         Globals.world.create()
 
+        Globals.createConsole()
+        Globals.console.execCommand("exec autoexec.cfg")
         val gameSaver = GameSaver()
         gameSaver.loadSettings()
     }
@@ -114,9 +114,6 @@ class Main : Game() {
         assets.load("gfx/house.png", Texture::class.java)
         assets.load("skins/uiskin.json", Skin::class.java)
         assets.load("languages/bundle", I18NBundle::class.java)
-        assets.load("maps/europe/heightmap.png", Texture::class.java)
-        assets.load("maps/europe/terrain.png", Texture::class.java)
-        assets.load("maps/europe/population.png", Texture::class.java)
         assets.finishLoading()
     }
 
