@@ -66,6 +66,7 @@ class Main : Game() {
         engine.addSystem(HouseSpriteRenderingSystem())
         engine.addSystem(TreeSpriteRenderingSystem())
         engine.addSystem(NameLabelRenderingSystem())
+        engine.addSystem(TreeCuttingSystem())
         Globals.world.create()
 
         Globals.createConsole()
