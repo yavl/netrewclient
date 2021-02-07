@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
 
-    ext.kotlinVersion = '1.4.21'
+    ext.kotlinVersion = '1.4.30'
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
