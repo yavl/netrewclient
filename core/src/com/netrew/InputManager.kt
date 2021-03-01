@@ -52,7 +52,7 @@ class InputManager() : InputProcessor {
                 val worldCoordsBefore: Vector3 = cam.unproject(Vector3(screenCoords))
                 cam.zoom -= 0.15f * cam.zoom
                 cam.update()
-                val worldCoordsAfter: Vector3 = cam.unproject(screenCoords)
+                val worldCoordsAfter: Vector3 = cam.unproject(Vector3(screenCoords))
                 val diff: Vector3 = Vector3(worldCoordsAfter).sub(worldCoordsBefore)
                 cam.position.sub(diff)
             }
@@ -83,7 +83,7 @@ class InputManager() : InputProcessor {
             dragNew.set(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
             dragOld.set(dragNew)
         }
-        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) || Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
             dragNew.set(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
             if (dragNew != dragOld) {
                 cam.translate((dragOld.x - dragNew.x) * cam.zoom, (dragNew.y - dragOld.y) * cam.zoom)

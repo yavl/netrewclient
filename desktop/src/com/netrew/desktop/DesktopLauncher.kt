@@ -9,8 +9,8 @@ object DesktopLauncher {
     fun main(arg: Array<String>) {
         val config = LwjglApplicationConfiguration()
         config.title = "Netrew"
-        config.width = 800
-        config.height = 600
+        config.width = 1600
+        config.height = 1200
         config.useHDPI = false
         LwjglApplication(Main(), config)
     }
