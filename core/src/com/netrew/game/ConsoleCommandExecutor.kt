@@ -1,6 +1,7 @@
 package com.netrew.game
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Graphics
 import com.badlogic.gdx.math.Vector2
 import com.netrew.Globals
 import com.netrew.toWorldPos
@@ -100,5 +101,11 @@ class ConsoleCommandExecutor() : CommandExecutor() {
             console.execCommand(command)
         }
         console.log("All commands from <$path> were executed.")
+    }
+
+    @ConsoleDoc(description = "Set fullscreen.")
+    fun fullscreen() {
+        val displayMode = Gdx.graphics.displayMode
+        Gdx.graphics.setFullscreenMode(displayMode)
     }
 }

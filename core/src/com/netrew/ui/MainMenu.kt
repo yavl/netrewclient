@@ -16,10 +16,7 @@ import com.netrew.ui.windows.CharacterPopupWindow
 import com.netrew.ui.windows.TreePopupWindow
 import ktx.actors.onClick
 import ktx.actors.txt
-import ktx.scene2d.horizontalGroup
-import ktx.scene2d.scene2d
-import ktx.scene2d.scrollPane
-import ktx.scene2d.textButton
+import ktx.scene2d.*
 
 class MainMenu : Screen {
     private val stage = Globals.uiStage
@@ -27,6 +24,7 @@ class MainMenu : Screen {
     lateinit var scroll: ScrollPane
     val characterPopupWindow = CharacterPopupWindow()
     val treePopupWindow = TreePopupWindow()
+    lateinit var timeScaleGroup: KHorizontalGroup
 
     init {
         Globals.mainMenu = this
@@ -49,6 +47,7 @@ class MainMenu : Screen {
         val scrollHeight = Gdx.graphics.height / 4f
         scroll.setPosition(0f, Gdx.graphics.height.toFloat() * 0.5f - scroll.height)
         scroll.setSize(scrollWidth, scrollHeight)
+        timeScaleGroup.setSize(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
     }
 
     override fun pause() {
@@ -85,7 +84,7 @@ class MainMenu : Screen {
     }
 
     fun showChangeTimescaleButtons() {
-        val group = scene2d.horizontalGroup {
+        timeScaleGroup = scene2d.horizontalGroup {
             textButton("Timescale 1x").onClick {
                 Globals.console.execCommand("timescale 1")
             }
@@ -96,9 +95,9 @@ class MainMenu : Screen {
                 Globals.console.execCommand("timescale 20")
             }
         }
-        group.setSize(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-        group.align(Align.topRight)
-        stage.addActor(group)
+        timeScaleGroup.setSize(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
+        timeScaleGroup.align(Align.topRight)
+        stage.addActor(timeScaleGroup)
     }
 
     fun appendDebugText(text: String) {

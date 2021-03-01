@@ -15,12 +15,11 @@ class CharacterComponent : Component, Pool.Poolable {
     var targetPosition = Vector2()
     var targetPositions = Array<Vector2>()
     var hasTargetPosition = false
-    var inventory = mutableMapOf<Resource, Int>()
-    var targetTree: Entity? = null
+    //var inventory = mutableMapOf<Resource, Int>()
 
     override fun reset() {
         hasTargetPosition = false
         targetPositions.clear()
-        inventory.clear()
+        //inventory.clear()
     }
 }

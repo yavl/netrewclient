@@ -19,6 +19,7 @@ class TreeCuttingSystem : IteratingSystem(Family.all(TransformComponent::class.j
         val transform = Mappers.transform.get(entity)
         val character = Mappers.character.get(entity)
 
+        /*
         character.targetTree = findClosestTree(entity)
         val targetTree = character.targetTree
         if (targetTree == null)
@@ -27,7 +28,7 @@ class TreeCuttingSystem : IteratingSystem(Family.all(TransformComponent::class.j
         if (transform.pos.dst2(targetTransform.pos) <= 360f) {
             engine.removeEntity(targetTree)
             character.inventory[Resource.WOOD] = character.inventory[Resource.WOOD]!! + 1
-        }
+        }*/
     }
 
     fun findClosestTree(entity: Entity): Entity? {
