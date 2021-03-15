@@ -6,10 +6,11 @@ buildscript {
         jcenter()
     }
 
-    ext.kotlinVersion = '1.4.30'
+    ext.kotlinVersion = '1.4.31'
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.12'
     }
 }
 
@@ -20,9 +21,10 @@ allprojects {
     version = '1.0'
     ext {
         appName = "Netrew"
-        gdxVersion = '1.9.14'
+        gdxVersion = '1.9.13'
         typingLabelVersion = '1.2.0'
         visuiVersion = '1.4.10'
+        roboVMVersion = '2.3.12'
     }
 
     repositories {
@@ -41,6 +43,21 @@ project(":desktop") {
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+    }
+}
+
+project(":ios") {
+    apply plugin: "java-library"
+    apply plugin: "robovm"
+
+
+    dependencies {
+        implementation project(":core")
+        api "com.mobidevelop.robovm:robovm-rt:$roboVMVersion"
+        api "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion"
+        api "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
+
     }
 }
 
